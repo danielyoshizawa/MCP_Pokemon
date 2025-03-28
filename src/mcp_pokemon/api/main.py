@@ -39,7 +39,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
     contact={
         "name": "MCP Pokemon Team",
-        "url": "https://github.com/danielfranca/MCP_Pokemon",
+        "url": "https://github.com/danielyoshizawa/MCP_Pokemon",
     },
     license_info={
         "name": "MIT",
