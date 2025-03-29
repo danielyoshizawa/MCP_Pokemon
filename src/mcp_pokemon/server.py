@@ -1,15 +1,24 @@
 """MCP Server for Pokemon data."""
 
 import asyncio
-import uvicorn
+import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+import uvicorn
 from mcp.server.fastmcp import FastMCP
+
 from mcp_pokemon.mcp.resources import register_all_resources
 from mcp_pokemon.mcp.tools import register_all_tools
 from mcp_pokemon.pokeapi import HTTPClient, PokeAPIRepository, PokemonService
+from mcp_pokemon.pokeapi.cache import RedisCache
+
+# Load environment variables
+load_dotenv()
 
 # Global variables for components that need to be shared
 client = None
+cache = None
 repository = None
 pokemon_service = None
 mcp = FastMCP("Pokemon")
@@ -20,11 +29,18 @@ async def lifespan(app):
     """Async context manager for FastAPI lifespan events."""
     # Startup
     print("Starting MCP Server")
-    global client, repository, pokemon_service
+    global client, cache, repository, pokemon_service
     
-    client = HTTPClient("https://pokeapi.co/api/v2")
+    # Initialize components
+    client = HTTPClient(os.getenv("POKEAPI_URL", "https://pokeapi.co/api/v2"))
+    cache = RedisCache(os.getenv("REDIS_URL", "redis://localhost:6379"))
+    
+    # Connect to services
     await client.connect()
-    repository = PokeAPIRepository(client)
+    await cache.connect()
+    
+    # Initialize repository and service
+    repository = PokeAPIRepository(client, cache)
     pokemon_service = PokemonService(repository)
     
     # Register all tools and resources
@@ -37,6 +53,8 @@ async def lifespan(app):
     print("Closing MCP server")
     if client:
         await client.close()
+    if cache:
+        await cache.close()
 
 # Add lifespan event handler
 app.router.lifespan_context = lifespan

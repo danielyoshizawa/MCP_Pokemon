@@ -1,15 +1,15 @@
-"""Pokemon tools for MCP server."""
+"""Pokemon tools for MCP."""
 
 from mcp.server.fastmcp import FastMCP
-from mcp_pokemon.pokeapi import PokemonService
+from mcp_pokemon.pokeapi.services import PokemonService
 
 
 def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
-    """Register Pokemon-related tools in the MCP server.
+    """Register Pokemon tools with MCP.
     
     Args:
-        mcp: The MCP server instance.
-        service: The Pokemon service instance.
+        mcp: The MCP instance to register tools with.
+        service: The Pokemon service to use.
     """
     
     @mcp.tool()
@@ -23,8 +23,8 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A string representation of the paginated Pokemon list.
         """
-        result = await service.list_pokemon(offset=offset, limit=limit)
-        return str([pokemon.name for pokemon in result])
+        pokemon_list = await service.list_pokemon(offset=offset, limit=limit)
+        return str([pokemon["name"] for pokemon in pokemon_list])
 
     @mcp.tool()
     async def compare_pokemon(pokemon1: str, pokemon2: str) -> str:

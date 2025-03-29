@@ -7,13 +7,17 @@ name = "mcp_pokemon"
 version = "0.1.0"
 description = "MCP server for Pokemon data"
 authors = [
-    {name = "Daniel", email = "daniel@example.com"}
+    {name = "Daniel Yoshizawa", email = "yoshidanielcwb@gmail.com"}
 ]
 dependencies = [
-    "mcp",
-    "uvicorn",
-    "requests",
-    "pydantic>=2.0.0"
+    "fastapi>=0.109.2",
+    "uvicorn>=0.27.1",
+    "pydantic>=2.6.1",
+    "aiohttp>=3.9.3",
+    "python-dotenv>=1.0.1",
+    "mcp>=0.1.0",
+    "redis>=5.0.1",
+    "aioredis>=2.0.1"
 ]
 requires-python = ">=3.11"
 
@@ -22,9 +26,10 @@ where = ["src"]
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-asyncio",
-    "black",
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.23.2",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.0",
     "isort",
     "mypy"
 ]

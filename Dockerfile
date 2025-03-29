@@ -4,12 +4,17 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Copy only the requirements file first to leverage Docker cache
-COPY pyproject.toml ./
-COPY src/ ./src/
+# Copy requirements first for better caching
+COPY requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
+COPY . .
+
+# Install the package in development mode
+RUN pip install -e .
 
 # Expose the port
 EXPOSE 8000

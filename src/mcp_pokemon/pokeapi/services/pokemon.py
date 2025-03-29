@@ -1,7 +1,9 @@
 """Pokemon service implementation."""
 
+from typing import List, Dict, Any
+
 from mcp_pokemon.pokeapi.models import Pokemon
-from mcp_pokemon.pokeapi.repositories import PokemonRepository
+from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
 class PokemonService:
@@ -15,18 +17,19 @@ class PokemonService:
         """
         self.repository = repository
 
-    async def get_pokemon(self, identifier: str | int) -> Pokemon:
+    async def get_pokemon(self, identifier: str | int) -> Dict[str, Any]:
         """Get a Pokemon by name or ID.
 
         Args:
             identifier: The Pokemon name or ID.
 
         Returns:
-            The Pokemon data.
+            The Pokemon data as a dictionary.
         """
-        return await self.repository.get_pokemon(identifier)
+        pokemon = await self.repository.get_pokemon(identifier)
+        return pokemon.model_dump()
 
-    async def list_pokemon(self, offset: int = 0, limit: int = 20) -> list[Pokemon]:
+    async def list_pokemon(self, offset: int = 0, limit: int = 20) -> List[Dict[str, Any]]:
         """List Pokemon with pagination.
 
         Args:
@@ -34,13 +37,13 @@ class PokemonService:
             limit: The limit for pagination.
 
         Returns:
-            List of Pokemon.
+            List of Pokemon data as dictionaries.
         """
         response = await self.repository.list_pokemon(offset=offset, limit=limit)
         pokemon_list = []
         for resource in response.results:
-            pokemon = await self.get_pokemon(resource.name)
-            pokemon_list.append(pokemon)
+            pokemon = await self.repository.get_pokemon(resource.name)
+            pokemon_list.append(pokemon.model_dump())
         return pokemon_list
 
     async def compare_pokemon(self, pokemon1: str | int, pokemon2: str | int) -> str:
@@ -53,8 +56,8 @@ class PokemonService:
         Returns:
             A string describing the comparison result.
         """
-        p1 = await self.get_pokemon(pokemon1)
-        p2 = await self.get_pokemon(pokemon2)
+        p1 = await self.repository.get_pokemon(pokemon1)
+        p2 = await self.repository.get_pokemon(pokemon2)
 
         # Calculate total base stats
         p1_total = sum(stat.base_stat for stat in p1.stats)
@@ -64,22 +67,15 @@ class PokemonService:
         p1_types = [t.type.name for t in p1.types]
         p2_types = [t.type.name for t in p2.types]
 
-        # Build comparison text
-        result = []
-        result.append(f"Comparing {p1.name.title()} vs {p2.name.title()}:")
-        result.append(f"\n{p1.name.title()}:")
-        result.append(f"- Types: {', '.join(p1_types)}")
-        result.append(f"- Total base stats: {p1_total}")
-        result.append(f"\n{p2.name.title()}:")
-        result.append(f"- Types: {', '.join(p2_types)}")
-        result.append(f"- Total base stats: {p2_total}")
-
-        # Determine winner based on stats
-        if p1_total > p2_total:
-            result.append(f"\n{p1.name.title()} would likely win with {p1_total} total base stats vs {p2_total}!")
-        elif p2_total > p1_total:
-            result.append(f"\n{p2.name.title()} would likely win with {p2_total} total base stats vs {p1_total}!")
-        else:
-            result.append(f"\nIt's a tie! Both Pokemon have {p1_total} total base stats.")
-
-        return "\n".join(result) 
+        return (
+            f"Comparing {p1.name.title()} vs {p2.name.title()}:\n\n"
+            f"{p1.name.title()}:\n"
+            f"- Types: {', '.join(p1_types)}\n"
+            f"- Total base stats: {p1_total}\n\n"
+            f"{p2.name.title()}:\n"
+            f"- Types: {', '.join(p2_types)}\n"
+            f"- Total base stats: {p2_total}\n\n"
+            f"{p1.name.title() if p1_total > p2_total else p2.name.title()} "
+            f"would likely win with {max(p1_total, p2_total)} total base stats vs "
+            f"{min(p1_total, p2_total)}!"
+        ) 
