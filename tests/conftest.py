@@ -1,9 +1,10 @@
-import pytest
-from fastapi.testclient import TestClient
+"""Test configuration and fixtures."""
 
-from mcp_pokemon.api.main import app
+import pytest
+from mcp_pokemon.pokeapi.client import PokeAPIClient
 
 @pytest.fixture
-def client():
-    """Create a test client for the FastAPI application"""
-    return TestClient(app) 
+async def pokeapi_client():
+    """Fixture that provides a PokeAPI client."""
+    async with PokeAPIClient() as client:
+        yield client 
