@@ -13,7 +13,7 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
     """
     
     @mcp.tool()
-    def list_pokemon(offset: int = 0, limit: int = 20) -> str:
+    async def list_pokemon(offset: int = 0, limit: int = 20) -> str:
         """List Pokemon with pagination.
         
         Args:
@@ -23,11 +23,11 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A string representation of the paginated Pokemon list.
         """
-        result = service.list_pokemon(offset=offset, limit=limit)
+        result = await service.list_pokemon(offset=offset, limit=limit)
         return str([pokemon.name for pokemon in result])
 
     @mcp.tool()
-    def compare_pokemon(pokemon1: str, pokemon2: str) -> str:
+    async def compare_pokemon(pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.
         
         Args:
@@ -37,4 +37,4 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A detailed comparison of the two Pokemon.
         """
-        return service.compare_pokemon(pokemon1, pokemon2) 
+        return await service.compare_pokemon(pokemon1, pokemon2) 

@@ -5,7 +5,7 @@ import httpx
 from unittest.mock import AsyncMock, patch
 
 from mcp_pokemon.pokeapi.client import PokeAPIClient
-from mcp_pokemon.pokeapi.exceptions import (
+from mcp_pokemon.pokeapi.client.exceptions import (
     PokeAPIConnectionError,
     PokeAPINotFoundError,
     PokeAPIRateLimitError,

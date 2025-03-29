@@ -1,61 +1,71 @@
-"""Pokemon service implementation."""
+"""Service for accessing Pokemon data."""
 
-from mcp_pokemon.pokeapi.models import Pokemon
-from mcp_pokemon.pokeapi.repositories import PokemonRepository
+from mcp_pokemon.pokeapi.models import Pokemon, NamedAPIResource
+from mcp_pokemon.pokeapi.repository import PokeAPIRepository
 
 
 class PokemonService:
-    """Service for Pokemon operations."""
+    """Service for accessing Pokemon data."""
 
-    def __init__(self, repository: PokemonRepository) -> None:
+    def __init__(self, repository: PokeAPIRepository) -> None:
         """Initialize the service.
-
+        
         Args:
-            repository: The repository to use for data access.
+            repository: The repository to use.
         """
-        self.repository = repository
+        self._repository = repository
 
-    async def get_pokemon(self, identifier: str | int) -> Pokemon:
+    async def get_pokemon(self, name_or_id: str) -> Pokemon:
         """Get a Pokemon by name or ID.
-
+        
         Args:
-            identifier: The Pokemon name or ID.
-
+            name_or_id: The name or ID of the Pokemon.
+            
         Returns:
             The Pokemon data.
+            
+        Raises:
+            PokeAPINotFoundError: If the Pokemon was not found.
+            PokeAPIConnectionError: If there was an error connecting to the API.
+            PokeAPIResponseError: If there was an error with the response.
         """
-        return await self.repository.get_pokemon(identifier)
+        return await self._repository.get_pokemon(name_or_id)
 
-    async def list_pokemon(self, offset: int = 0, limit: int = 20) -> list[Pokemon]:
+    async def list_pokemon(self, offset: int = 0, limit: int = 20) -> list[NamedAPIResource]:
         """List Pokemon with pagination.
-
+        
         Args:
             offset: The offset for pagination.
             limit: The limit for pagination.
-
+            
         Returns:
-            List of Pokemon.
+            A list of Pokemon resources.
+            
+        Raises:
+            PokeAPIConnectionError: If there was an error connecting to the API.
+            PokeAPIResponseError: If there was an error with the response.
         """
-        response = await self.repository.list_pokemon(offset=offset, limit=limit)
-        pokemon_list = []
-        for resource in response.results:
-            pokemon = await self.get_pokemon(resource.name)
-            pokemon_list.append(pokemon)
-        return pokemon_list
+        response = await self._repository.list_pokemon(offset=offset, limit=limit)
+        return response.results
 
-    async def compare_pokemon(self, pokemon1: str | int, pokemon2: str | int) -> str:
+    async def compare_pokemon(self, pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.
-
+        
         Args:
             pokemon1: Name or ID of the first Pokemon.
             pokemon2: Name or ID of the second Pokemon.
-
+            
         Returns:
-            A string describing the comparison result.
+            A detailed comparison of the two Pokemon.
+            
+        Raises:
+            PokeAPINotFoundError: If either Pokemon was not found.
+            PokeAPIConnectionError: If there was an error connecting to the API.
+            PokeAPIResponseError: If there was an error with the response.
         """
         p1 = await self.get_pokemon(pokemon1)
         p2 = await self.get_pokemon(pokemon2)
-
+        
         # Calculate total base stats
         p1_total = sum(stat.base_stat for stat in p1.stats)
         p2_total = sum(stat.base_stat for stat in p2.stats)

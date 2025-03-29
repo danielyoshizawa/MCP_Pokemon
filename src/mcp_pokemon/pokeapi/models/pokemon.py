@@ -1,7 +1,7 @@
 """Pokemon models for the PokeAPI."""
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from mcp_pokemon.pokeapi.models.base import NamedAPIResource
+from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse
 
 class VersionGameIndex(BaseModel):
     """A version game index in the PokeAPI."""
@@ -60,3 +60,8 @@ class Pokemon(BaseModel):
     sprites: PokemonSprites
     stats: List[PokemonStat]
     types: List[PokemonType]
+
+
+class PokemonList(PaginatedResponse[NamedAPIResource]):
+    """A paginated list of Pokemon from the PokeAPI."""
+    pass

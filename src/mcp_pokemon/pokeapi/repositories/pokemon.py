@@ -16,7 +16,7 @@ class PokeAPIRepository(PokemonRepository):
         """
         self.client = client
 
-    def get_pokemon(self, identifier: str | int) -> Pokemon:
+    async def get_pokemon(self, identifier: str | int) -> Pokemon:
         """Get a Pokemon by name or ID.
 
         Args:
@@ -30,7 +30,7 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """
-        data = self.client._get(f"/pokemon/{identifier}")
+        data = await self.client._get(f"/pokemon/{identifier}")
         # Ensure required fields are present for validation
         if isinstance(data, dict):
             data.setdefault("base_experience", 0)
@@ -43,9 +43,7 @@ class PokeAPIRepository(PokemonRepository):
             data.setdefault("game_indices", [])
         return Pokemon.model_validate(data)
 
-    def list_pokemon(
-        self, offset: int = 0, limit: int = 20
-    ) -> PaginatedResponse[NamedAPIResource]:
+    async def list_pokemon(self, offset: int = 0, limit: int = 20) -> PaginatedResponse[NamedAPIResource]:
         """List Pokemon with pagination.
 
         Args:
@@ -53,11 +51,11 @@ class PokeAPIRepository(PokemonRepository):
             limit: The limit for pagination.
 
         Returns:
-            The paginated response containing Pokemon resources.
+            A paginated response containing Pokemon resources.
 
         Raises:
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """
-        data = self.client._get("/pokemon", offset=offset, limit=limit)
+        data = await self.client._get("/pokemon", params={"offset": offset, "limit": limit})
         return PaginatedResponse[NamedAPIResource].model_validate(data) 

@@ -8,7 +8,7 @@ from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Poke
 class PokemonRepository(Protocol):
     """Interface for Pokemon data access."""
 
-    def get_pokemon(self, identifier: str | int) -> Pokemon:
+    async def get_pokemon(self, identifier: str | int) -> Pokemon:
         """Get a Pokemon by name or ID.
 
         Args:
@@ -24,7 +24,7 @@ class PokemonRepository(Protocol):
         """
         ...
 
-    def list_pokemon(
+    async def list_pokemon(
         self, offset: int = 0, limit: int = 20
     ) -> PaginatedResponse[NamedAPIResource]:
         """List Pokemon with pagination.

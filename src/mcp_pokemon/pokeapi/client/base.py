@@ -1,9 +1,7 @@
-"""Base HTTP client for the PokeAPI."""
+"""Base HTTP client for making requests to external APIs."""
 
+import aiohttp
 from typing import Any, Dict, Optional
-import json
-
-import httpx
 
 from mcp_pokemon.pokeapi.client.exceptions import (
     PokeAPIConnectionError,
@@ -12,141 +10,83 @@ from mcp_pokemon.pokeapi.client.exceptions import (
     PokeAPIResponseError,
 )
 
-
 class HTTPClient:
-    """Base HTTP client for making API requests."""
+    """Base HTTP client for making requests to external APIs."""
 
     def __init__(self, base_url: str) -> None:
         """Initialize the HTTP client.
-
+        
         Args:
             base_url: The base URL for the API.
         """
-        self.base_url = base_url.rstrip("/")
-        self._client: Optional[httpx.Client] = None
+        self.base_url = base_url
+        self._session: Optional[aiohttp.ClientSession] = None
 
-    def __enter__(self) -> "HTTPClient":
-        """Enter the context manager."""
-        self.connect()
+    async def connect(self) -> None:
+        """Create and initialize the HTTP session."""
+        if not self._session:
+            self._session = aiohttp.ClientSession()
+
+    async def close(self) -> None:
+        """Close the HTTP session."""
+        if self._session:
+            await self._session.close()
+            self._session = None
+
+    async def __aenter__(self) -> 'HTTPClient':
+        """Enter the async context manager."""
+        await self.connect()
         return self
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Exit the context manager."""
-        self.close()
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        """Exit the async context manager."""
+        await self.close()
 
-    @property
-    def client(self) -> httpx.Client:
-        """Get the HTTP client.
-
-        Returns:
-            The HTTP client.
-
-        Raises:
-            PokeAPIConnectionError: If the client is not connected.
-        """
-        if self._client is None:
-            raise PokeAPIConnectionError("Client is not connected")
-        return self._client
-
-    def connect(self) -> None:
-        """Connect to the API."""
-        if self._client is None:
-            self._client = httpx.Client(
-                base_url=self.base_url,
-                timeout=30.0,
-                follow_redirects=True,
-            )
-
-    def close(self) -> None:
-        """Close the connection to the API."""
-        if self._client is not None:
-            self._client.close()
-            self._client = None
-
-    def _handle_response(self, response: httpx.Response) -> Dict[str, Any]:
-        """Handle the response from the API.
-
+    async def _handle_response(self, response: aiohttp.ClientResponse) -> Dict[str, Any]:
+        """Handle the HTTP response and return the JSON data.
+        
         Args:
-            response: The response from the API.
-
-        Returns:
-            The JSON response data.
-
-        Raises:
-            PokeAPINotFoundError: If the resource is not found.
-            PokeAPIRateLimitError: If the rate limit is exceeded.
-            PokeAPIResponseError: If the response contains an error.
-        """
-        try:
-            response.raise_for_status()
-            try:
-                data = response.json()
-            except json.JSONDecodeError:
-                data = {"message": "Invalid JSON response"}
-            response.close()
-            return data
-        except httpx.HTTPStatusError as e:
-            try:
-                data = e.response.json()
-            except json.JSONDecodeError:
-                data = {"message": str(e)}
+            response: The HTTP response from the request.
             
-            if e.response.status_code == 404:
-                raise PokeAPINotFoundError(
-                    "Resource not found",
-                    status_code=404,
-                    response=data,
-                )
-            elif e.response.status_code == 429:
-                raise PokeAPIRateLimitError(
-                    "Rate limit exceeded",
-                    status_code=429,
-                    response=data,
-                )
-            else:
-                raise PokeAPIResponseError(
-                    f"HTTP {e.response.status_code}",
-                    status_code=e.response.status_code,
-                    response=data,
-                )
+        Returns:
+            The JSON data from the response.
+            
+        Raises:
+            PokeAPINotFoundError: If the resource was not found.
+            PokeAPIRateLimitError: If the rate limit was exceeded.
+            PokeAPIResponseError: If there was an error with the response.
+        """
+        if response.status == 404:
+            raise PokeAPINotFoundError("Resource not found")
+        elif response.status == 429:
+            raise PokeAPIRateLimitError("Rate limit exceeded")
+        elif response.status >= 400:
+            raise PokeAPIResponseError(f"HTTP {response.status}: {await response.text()}")
+        
+        return await response.json()
 
-    def _get(self, path: str, **params) -> dict:
+    async def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Make a GET request to the API.
-
+        
         Args:
             path: The path to request.
-            **params: Additional query parameters.
-
+            params: Optional query parameters.
+            
         Returns:
-            The response data.
-
+            The JSON response data.
+            
         Raises:
-            PokeAPINotFoundError: If the resource is not found.
-            PokeAPIConnectionError: If there is a connection error.
-            PokeAPIResponseError: If the response contains an error.
+            PokeAPIConnectionError: If there was an error connecting to the API.
+            PokeAPINotFoundError: If the resource was not found.
+            PokeAPIRateLimitError: If the rate limit was exceeded.
+            PokeAPIResponseError: If there was an error with the response.
         """
+        if not self._session:
+            raise PokeAPIConnectionError("Client is not connected")
+
         try:
-            response = self.client.get(path, params=params)
-            if response.status_code != 200:
-                error_data = response.json() if response.content else {}
-                if response.status_code == 404:
-                    raise PokeAPINotFoundError(
-                        message="Resource not found",
-                        response=error_data,
-                        status_code=404
-                    )
-                elif response.status_code == 429:
-                    raise PokeAPIRateLimitError(
-                        message="Rate limit exceeded",
-                        response=error_data,
-                        status_code=429
-                    )
-                else:
-                    raise PokeAPIResponseError(
-                        message=f"HTTP {response.status_code}",
-                        response=error_data,
-                        status_code=response.status_code
-                    )
-            return response.json()
-        except httpx.RequestError as e:
-            raise PokeAPIConnectionError(message="Connection error") from e
+            url = f"{self.base_url}/{path}"
+            async with self._session.get(url, params=params) as response:
+                return await self._handle_response(response)
+        except aiohttp.ClientError as ex:
+            raise PokeAPIConnectionError(f"Failed to connect to API: {ex}")
