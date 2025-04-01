@@ -11,6 +11,7 @@ from mcp_pokemon.pokeapi.models import (
     PokemonForm,
     PokemonHabitat,
     PokemonColor,
+    PokemonShape,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -154,4 +155,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/pokemon-color/{identifier}")
-        return PokemonColor.model_validate(data) 
+        return PokemonColor.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_pokemon_shape(self, identifier: str | int) -> PokemonShape:
+        """Get a Pokemon shape by name or ID.
+
+        Args:
+            identifier: The shape name or ID.
+
+        Returns:
+            The Pokemon shape data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon shape is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/pokemon-shape/{identifier}")
+        return PokemonShape.model_validate(data) 

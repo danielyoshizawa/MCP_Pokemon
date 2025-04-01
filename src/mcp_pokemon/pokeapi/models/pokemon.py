@@ -259,3 +259,19 @@ class PokemonColor(BaseModel):
     name: str
     names: List[Name]
     pokemon_species: List[NamedAPIResource] = Field(alias="pokemon_species")
+
+class AwesomeName(BaseModel):
+    """Model for a Pokemon shape's awesome name in a specific language."""
+    awesome_name: str
+    language: NamedAPIResource
+
+class PokemonShape(BaseModel):
+    """Model for a Pokemon shape.
+    
+    A Pokemon shape represents the general physical structure of a Pokemon, such as 'ball', 'squiggle', etc.
+    """
+    id: int
+    name: str
+    awesome_names: List[AwesomeName]
+    names: List[Name]
+    pokemon_species: List[NamedAPIResource]

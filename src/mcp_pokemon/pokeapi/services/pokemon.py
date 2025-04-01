@@ -1,8 +1,8 @@
 """Pokemon service implementation."""
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -311,4 +311,49 @@ class PokemonService:
         else:
             result.append("Both Pokemon are evenly matched in total base stats!")
 
-        return "\n".join(result) 
+        return "\n".join(result)
+
+    async def get_pokemon_shape_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon shape.
+
+        Args:
+            identifier: The shape name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon shape.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon shape is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        shape = await self.repository.get_pokemon_shape(identifier)
+
+        # Format the shape name
+        shape_name = shape.name.replace("-", " ").title()
+
+        # Get names in other languages
+        names_str = "Names in other languages:\n"
+        for name in shape.names:
+            names_str += f"  - {name.name} ({name.language.name})\n"
+
+        # Get scientific names (awesome names)
+        scientific_str = "Scientific names:\n"
+        for name in shape.awesome_names:
+            scientific_str += f"  - {name.awesome_name} ({name.language.name})\n"
+
+        # Get Pokemon species with this shape
+        pokemon_list = sorted([species.name.replace("-", " ").title() for species in shape.pokemon_species])
+        
+        # Format Pokemon list in columns
+        max_name_length = max(len(name) for name in pokemon_list)
+        column_width = max_name_length + 4
+        num_columns = max(1, 80 // column_width)
+        
+        pokemon_str = f"\nPokemon of this shape ({len(pokemon_list)}):\n  "
+        for i, name in enumerate(pokemon_list):
+            if i > 0 and i % num_columns == 0:
+                pokemon_str += "\n  "
+            pokemon_str += f"{name:<{column_width}}"
+
+        return f"Shape: {shape_name}\n\n{names_str}\n{scientific_str}{pokemon_str}" 

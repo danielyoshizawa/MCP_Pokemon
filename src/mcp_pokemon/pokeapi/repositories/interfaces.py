@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape
 
 
 class PokemonRepository(Protocol):
@@ -117,6 +117,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the Pokemon color is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_pokemon_shape(self, identifier: str | int) -> PokemonShape:
+        """Get a Pokemon shape by name or ID.
+        
+        Args:
+            identifier: The shape name or ID.
+
+        Returns:
+            The Pokemon shape data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon shape is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """
