@@ -10,6 +10,7 @@ from mcp_pokemon.pokeapi.models import (
     EvolutionChain,
     PokemonForm,
     PokemonHabitat,
+    PokemonColor,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -135,4 +136,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/pokemon-habitat/{identifier}")
-        return PokemonHabitat.model_validate(data) 
+        return PokemonHabitat.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_pokemon_color(self, identifier: str | int) -> PokemonColor:
+        """Get a Pokemon color by name or ID.
+
+        Args:
+            identifier: The color name or ID.
+
+        Returns:
+            The Pokemon color data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon color is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/pokemon-color/{identifier}")
+        return PokemonColor.model_validate(data) 

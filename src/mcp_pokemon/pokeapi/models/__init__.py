@@ -10,6 +10,7 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     ChainLink,
     PokemonForm,
     PokemonHabitat,
+    PokemonColor,
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "ChainLink",
     "PokemonForm",
     "PokemonHabitat",
+    "PokemonColor",
 ] 

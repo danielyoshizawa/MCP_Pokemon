@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -217,6 +217,39 @@ class PokemonService:
             details.append(f"\nPokemon found in this habitat ({len(habitat.pokemon_species)}):")
             pokemon_list = sorted([species.name.title() for species in habitat.pokemon_species])
             details.extend(f"  - {pokemon}" for pokemon in pokemon_list)
+        
+        return "\n".join(details)
+
+    async def get_pokemon_color_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon color.
+
+        Args:
+            identifier: The color name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon color.
+        """
+        color = await self.repository.get_pokemon_color(identifier)
+        
+        details = []
+        # Add color name
+        details.append(f"Color: {color.name.title()}")
+        
+        # Add localized names
+        localized_names = [f"{name.name} ({name.language.name})" for name in color.names]
+        if localized_names:
+            details.append("Names in other languages:")
+            details.extend(f"  - {name}" for name in localized_names)
+        
+        # Add Pokemon species of this color
+        if color.pokemon_species:
+            details.append(f"\nPokemon of this color ({len(color.pokemon_species)}):")
+            pokemon_list = sorted([species.name.title() for species in color.pokemon_species])
+            # Group Pokemon in columns for better readability
+            columns = 3
+            for i in range(0, len(pokemon_list), columns):
+                row = pokemon_list[i:i + columns]
+                details.append("  " + "  ".join(f"{pokemon:<15}" for pokemon in row))
         
         return "\n".join(details)
 

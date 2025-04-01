@@ -106,4 +106,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon habitat.
         """
-        return await service.get_pokemon_habitat_details(identifier) 
+        return await service.get_pokemon_habitat_details(identifier)
+
+    @mcp.tool()
+    async def get_color(identifier: str) -> str:
+        """Get detailed information about a Pokemon color.
+        
+        Args:
+            identifier: Name or ID of the color.
+            
+        Returns:
+            A formatted string with details about the Pokemon color.
+        """
+        return await service.get_pokemon_color_details(identifier) 

@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor
 
 
 class PokemonRepository(Protocol):
@@ -101,6 +101,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the Pokemon habitat is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_pokemon_color(self, identifier: str | int) -> PokemonColor:
+        """Get a Pokemon color by name or ID.
+
+        Args:
+            identifier: The color name or ID.
+
+        Returns:
+            The Pokemon color data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon color is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

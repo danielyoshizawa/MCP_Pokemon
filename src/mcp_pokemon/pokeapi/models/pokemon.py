@@ -251,3 +251,11 @@ class PokemonHabitat(BaseModel):
     name: str
     names: List[Name]
     pokemon_species: List[NamedAPIResource] = Field(alias="pokemon_species")
+
+class PokemonColor(BaseModel):
+    """A Pokemon color from the PokeAPI."""
+    
+    id: int
+    name: str
+    names: List[Name]
+    pokemon_species: List[NamedAPIResource] = Field(alias="pokemon_species")
