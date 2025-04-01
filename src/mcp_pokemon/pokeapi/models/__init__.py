@@ -14,6 +14,10 @@ from mcp_pokemon.pokeapi.models.base import (
     VersionGameIndex,
 )
 from mcp_pokemon.pokeapi.models.pokemon import (
+    Ability,
+    AbilityEffectChange,
+    AbilityFlavorText,
+    AbilityPokemon,
     Pokemon,
     PokemonAbility,
     PokemonForm,
@@ -78,4 +82,8 @@ __all__ = [
     "TypePastDamageRelations",
     "TypePokemon",
     "TypeSprites",
+    "Ability",
+    "AbilityEffectChange",
+    "AbilityFlavorText",
+    "AbilityPokemon",
 ] 

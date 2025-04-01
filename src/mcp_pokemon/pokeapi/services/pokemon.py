@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -443,4 +443,88 @@ class PokemonService:
                 pokemon_str += "\n  "
             pokemon_str += f"{name:<{column_width}}"
 
-        return f"Type: {type_name}\n\n{names_str}{relations_str}{pokemon_str}" 
+        return f"Type: {type_name}\n\n{names_str}{relations_str}{pokemon_str}"
+
+    async def get_ability_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon ability.
+
+        Args:
+            identifier: The ability name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon ability.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon ability is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ability = await self.repository.get_ability(identifier)
+
+        # Format ability name
+        ability_name = ability.name.replace("-", " ").title()
+
+        # Get names in other languages
+        names = []
+        for name in ability.names:
+            names.append(f"  - {name.name} ({name.language.name})")
+
+        # Get effect entries
+        effects = []
+        for effect in ability.effect_entries:
+            if effect.language.name == "en":
+                effects.append(effect.effect)
+
+        # Get effect changes if any
+        effect_changes = []
+        for change in ability.effect_changes:
+            for effect in change.effect_entries:
+                if effect.language.name == "en":
+                    effect_changes.append(f"  - {effect.effect} (from {change.version_group.name})")
+
+        # Get Pokemon with this ability
+        pokemon_list = []
+        for pokemon in ability.pokemon:
+            name = pokemon.pokemon.name.replace("-", " ").title()
+            hidden = "(Hidden)" if pokemon.is_hidden else ""
+            pokemon_list.append(f"{name} {hidden}")
+
+        # Sort Pokemon list and format in columns
+        pokemon_list.sort()
+        max_length = max(len(name) for name in pokemon_list)
+        columns = 2
+        rows = (len(pokemon_list) + columns - 1) // columns
+        pokemon_columns = []
+        for i in range(rows):
+            row = []
+            for j in range(columns):
+                idx = i + j * rows
+                if idx < len(pokemon_list):
+                    row.append(pokemon_list[idx].ljust(max_length + 2))
+            pokemon_columns.append("  " + "".join(row))
+
+        # Build the result string
+        result = [
+            f"Ability: {ability_name}",
+            "",
+            "Names in other languages:",
+            *names,
+            "",
+            "Effect:",
+            *[f"  {effect}" for effect in effects],
+        ]
+
+        if effect_changes:
+            result.extend([
+                "",
+                "Effect changes:",
+                *effect_changes,
+            ])
+
+        result.extend([
+            "",
+            "Pokemon with this ability:",
+            *pokemon_columns,
+        ])
+
+        return "\n".join(result) 

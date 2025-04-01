@@ -13,6 +13,7 @@ from mcp_pokemon.pokeapi.models import (
     PokemonColor,
     PokemonShape,
     Type,
+    Ability,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -192,4 +193,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/type/{identifier}")
-        return Type.model_validate(data) 
+        return Type.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_ability(self, identifier: str | int) -> Ability:
+        """Get a Pokemon ability by name or ID.
+
+        Args:
+            identifier: The ability name or ID.
+
+        Returns:
+            The Pokemon ability data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon ability is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/ability/{identifier}")
+        return Ability.model_validate(data) 

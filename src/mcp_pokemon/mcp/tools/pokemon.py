@@ -142,4 +142,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon type.
         """
-        return await service.get_type_details(identifier) 
+        return await service.get_type_details(identifier)
+
+    @mcp.tool()
+    async def get_ability(identifier: str) -> str:
+        """Get detailed information about a Pokemon ability.
+        
+        Args:
+            identifier: Name or ID of the ability.
+            
+        Returns:
+            A formatted string with details about the Pokemon ability.
+        """
+        return await service.get_ability_details(identifier) 

@@ -1,7 +1,13 @@
 """Pokemon models for the PokeAPI."""
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
-from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse, GenerationGameIndex
+from mcp_pokemon.pokeapi.models.base import (
+    NamedAPIResource,
+    PaginatedResponse,
+    GenerationGameIndex,
+    Effect,
+    VerboseEffect,
+)
 
 class VersionGameIndex(BaseModel):
     """A version game index in the PokeAPI."""
@@ -321,3 +327,32 @@ class Type(BaseModel):
     pokemon: List[TypePokemon]
     moves: List[NamedAPIResource]
     sprites: TypeSprites
+
+class AbilityEffectChange(BaseModel):
+    """Model for ability effect changes."""
+    effect_entries: List[Effect]
+    version_group: NamedAPIResource
+
+class AbilityFlavorText(BaseModel):
+    """Model for ability flavor text entries."""
+    flavor_text: str
+    language: NamedAPIResource
+    version_group: NamedAPIResource
+
+class AbilityPokemon(BaseModel):
+    """Model for Pokemon that can have the ability."""
+    is_hidden: bool
+    pokemon: NamedAPIResource
+    slot: int
+
+class Ability(BaseModel):
+    """Model for Pokemon abilities."""
+    id: int
+    name: str
+    is_main_series: bool
+    generation: NamedAPIResource
+    names: List[Name]
+    effect_entries: List[VerboseEffect]
+    effect_changes: List[AbilityEffectChange]
+    flavor_text_entries: List[AbilityFlavorText]
+    pokemon: List[AbilityPokemon]
