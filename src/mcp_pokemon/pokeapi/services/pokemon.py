@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -356,4 +356,91 @@ class PokemonService:
                 pokemon_str += "\n  "
             pokemon_str += f"{name:<{column_width}}"
 
-        return f"Shape: {shape_name}\n\n{names_str}\n{scientific_str}{pokemon_str}" 
+        return f"Shape: {shape_name}\n\n{names_str}\n{scientific_str}{pokemon_str}"
+
+    async def get_type_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon type.
+
+        Args:
+            identifier: The type name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon type.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon type is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        type_data = await self.repository.get_type(identifier)
+
+        # Format the type name
+        type_name = type_data.name.replace("-", " ").title()
+
+        # Get names in other languages
+        names_str = "Names in other languages:\n"
+        for name in type_data.names:
+            names_str += f"  - {name.name} ({name.language.name})\n"
+
+        # Format damage relations
+        damage_relations = type_data.damage_relations
+        
+        relations_str = "\nDamage Relations:\n"
+        
+        # Super effective against (2x damage)
+        relations_str += "\nSuper effective against:\n  "
+        if damage_relations.double_damage_to:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.double_damage_to)
+        else:
+            relations_str += "None"
+
+        # Not very effective against (0.5x damage)
+        relations_str += "\n\nNot very effective against:\n  "
+        if damage_relations.half_damage_to:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.half_damage_to)
+        else:
+            relations_str += "None"
+
+        # No effect against (0x damage)
+        relations_str += "\n\nNo effect against:\n  "
+        if damage_relations.no_damage_to:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.no_damage_to)
+        else:
+            relations_str += "None"
+
+        # Weak to (2x damage taken)
+        relations_str += "\n\nWeak to:\n  "
+        if damage_relations.double_damage_from:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.double_damage_from)
+        else:
+            relations_str += "None"
+
+        # Resistant to (0.5x damage taken)
+        relations_str += "\n\nResistant to:\n  "
+        if damage_relations.half_damage_from:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.half_damage_from)
+        else:
+            relations_str += "None"
+
+        # Immune to (0x damage taken)
+        relations_str += "\n\nImmune to:\n  "
+        if damage_relations.no_damage_from:
+            relations_str += ", ".join(t.name.title() for t in damage_relations.no_damage_from)
+        else:
+            relations_str += "None"
+
+        # Get Pokemon of this type
+        pokemon_list = sorted([p.pokemon.name.replace("-", " ").title() for p in type_data.pokemon])
+        
+        # Format Pokemon list in columns
+        max_name_length = max(len(name) for name in pokemon_list)
+        column_width = max_name_length + 4
+        num_columns = max(1, 80 // column_width)
+        
+        pokemon_str = f"\n\nPokemon of this type ({len(pokemon_list)}):\n  "
+        for i, name in enumerate(pokemon_list):
+            if i > 0 and i % num_columns == 0:
+                pokemon_str += "\n  "
+            pokemon_str += f"{name:<{column_width}}"
+
+        return f"Type: {type_name}\n\n{names_str}{relations_str}{pokemon_str}" 

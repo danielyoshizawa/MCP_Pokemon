@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type
 
 
 class PokemonRepository(Protocol):
@@ -133,6 +133,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the Pokemon shape is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_type(self, identifier: str | int) -> Type:
+        """Get a Pokemon type by name or ID.
+        
+        Args:
+            identifier: The type name or ID.
+
+        Returns:
+            The Pokemon type data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon type is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

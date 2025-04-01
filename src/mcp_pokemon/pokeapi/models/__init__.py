@@ -34,6 +34,11 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     PokemonColor,
     PokemonShape,
     AwesomeName,
+    Type,
+    TypeDamageRelations,
+    TypePastDamageRelations,
+    TypePokemon,
+    TypeSprites,
 )
 
 __all__ = [
@@ -68,4 +73,9 @@ __all__ = [
     "PokemonColor",
     "PokemonShape",
     "AwesomeName",
+    "Type",
+    "TypeDamageRelations",
+    "TypePastDamageRelations",
+    "TypePokemon",
+    "TypeSprites",
 ] 

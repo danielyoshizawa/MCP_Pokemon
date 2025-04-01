@@ -130,4 +130,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon shape.
         """
-        return await service.get_pokemon_shape_details(identifier) 
+        return await service.get_pokemon_shape_details(identifier)
+
+    @mcp.tool()
+    async def get_type(identifier: str) -> str:
+        """Get detailed information about a Pokemon type.
+        
+        Args:
+            identifier: Name or ID of the type.
+            
+        Returns:
+            A formatted string with details about the Pokemon type.
+        """
+        return await service.get_type_details(identifier) 

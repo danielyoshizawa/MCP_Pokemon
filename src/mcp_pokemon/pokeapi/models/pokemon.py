@@ -1,7 +1,7 @@
 """Pokemon models for the PokeAPI."""
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
-from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse
+from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse, GenerationGameIndex
 
 class VersionGameIndex(BaseModel):
     """A version game index in the PokeAPI."""
@@ -275,3 +275,49 @@ class PokemonShape(BaseModel):
     awesome_names: List[AwesomeName]
     names: List[Name]
     pokemon_species: List[NamedAPIResource]
+
+class TypeDamageRelations(BaseModel):
+    """Model for type damage relations."""
+    double_damage_from: List[NamedAPIResource]
+    double_damage_to: List[NamedAPIResource]
+    half_damage_from: List[NamedAPIResource]
+    half_damage_to: List[NamedAPIResource]
+    no_damage_from: List[NamedAPIResource]
+    no_damage_to: List[NamedAPIResource]
+
+class TypePastDamageRelations(BaseModel):
+    """Model for past type damage relations."""
+    damage_relations: TypeDamageRelations
+    generation: NamedAPIResource
+
+class TypePokemon(BaseModel):
+    """Model for a Pokemon of a specific type."""
+    pokemon: NamedAPIResource
+    slot: int
+
+class TypeSprites(BaseModel):
+    """Model for type sprites."""
+    generation_iii: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-iii")
+    generation_iv: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-iv")
+    generation_v: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-v")
+    generation_vi: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-vi")
+    generation_vii: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-vii")
+    generation_viii: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-viii")
+    generation_ix: Optional[Dict[str, Dict[str, str]]] = Field(alias="generation-ix")
+
+class Type(BaseModel):
+    """Model for a Pokemon type.
+    
+    A type is a property for Pokémon and their moves that defines their strengths and weaknesses.
+    """
+    id: int
+    name: str
+    damage_relations: TypeDamageRelations
+    past_damage_relations: List[TypePastDamageRelations]
+    game_indices: List[GenerationGameIndex]
+    generation: NamedAPIResource
+    move_damage_class: Optional[NamedAPIResource]
+    names: List[Name]
+    pokemon: List[TypePokemon]
+    moves: List[NamedAPIResource]
+    sprites: TypeSprites
