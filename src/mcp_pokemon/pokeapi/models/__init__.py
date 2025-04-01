@@ -44,6 +44,9 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     TypePokemon,
     TypeSprites,
     Characteristic,
+    MoveStatAffectSets,
+    NatureStatAffectSets,
+    Stat,
 )
 
 __all__ = [
@@ -88,4 +91,7 @@ __all__ = [
     "AbilityFlavorText",
     "AbilityPokemon",
     "Characteristic",
+    "MoveStatAffectSets",
+    "NatureStatAffectSets",
+    "Stat",
 ] 

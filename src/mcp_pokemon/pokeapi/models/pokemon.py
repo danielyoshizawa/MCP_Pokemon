@@ -1,7 +1,8 @@
 """Pokemon models for the PokeAPI."""
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from mcp_pokemon.pokeapi.models.base import (
+    APIResource,
     NamedAPIResource,
     PaginatedResponse,
     GenerationGameIndex,
@@ -370,3 +371,28 @@ class Characteristic(BaseModel):
     possible_values: List[int]
     highest_stat: NamedAPIResource
     descriptions: List[Description]
+
+class MoveStatAffectSets(BaseModel):
+    """A set of moves that affect a stat."""
+    
+    increase: List[Dict[str, Any]] = Field(default_factory=list)
+    decrease: List[Dict[str, Any]] = Field(default_factory=list)
+
+class NatureStatAffectSets(BaseModel):
+    """A set of natures that affect a stat."""
+    
+    increase: List[NamedAPIResource] = Field(default_factory=list)
+    decrease: List[NamedAPIResource] = Field(default_factory=list)
+
+class Stat(BaseModel):
+    """A Pokemon stat from the PokeAPI."""
+    
+    id: int
+    name: str
+    game_index: int
+    is_battle_only: bool
+    affecting_moves: MoveStatAffectSets
+    affecting_natures: NatureStatAffectSets
+    characteristics: List[APIResource]
+    move_damage_class: Optional[NamedAPIResource] = None
+    names: List[Name]

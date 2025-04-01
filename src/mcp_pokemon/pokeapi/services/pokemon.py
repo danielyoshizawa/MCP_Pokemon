@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -571,5 +571,84 @@ class PokemonService:
             result.extend(other_languages)
         else:
             result.append("  No translations available")
+
+        return "\n".join(result)
+
+    async def get_stat_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon stat.
+
+        Args:
+            identifier: The stat name or ID.
+
+        Returns:
+            A formatted string containing details about the stat.
+
+        Raises:
+            PokeAPINotFoundError: If the stat is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        stat = await self.repository.get_stat(identifier)
+
+        # Get the English name
+        english_name = next(
+            (name.name for name in stat.names if name.language.name == "en"),
+            stat.name.replace("-", " ").title()
+        )
+
+        # Format names in other languages
+        other_names = []
+        for name in stat.names:
+            if name.language.name != "en":
+                other_names.append(f"  - {name.name} ({name.language.name})")
+
+        # Format moves that affect this stat
+        increasing_moves = []
+        decreasing_moves = []
+        for move in stat.affecting_moves.increase:
+            if "move" in move:
+                increasing_moves.append(move["move"]["name"].replace("-", " ").title())
+        for move in stat.affecting_moves.decrease:
+            if "move" in move:
+                decreasing_moves.append(move["move"]["name"].replace("-", " ").title())
+
+        # Format natures that affect this stat
+        increasing_natures = [nature.name.replace("-", " ").title() for nature in stat.affecting_natures.increase]
+        decreasing_natures = [nature.name.replace("-", " ").title() for nature in stat.affecting_natures.decrease]
+
+        # Format the result string
+        result = [
+            f"Stat: {english_name}",
+            f"ID: {stat.id}",
+            f"Game Index: {stat.game_index}",
+            f"Battle Only: {'Yes' if stat.is_battle_only else 'No'}",
+        ]
+
+        if stat.move_damage_class:
+            result.append(f"Move Damage Class: {stat.move_damage_class.name.replace('-', ' ').title()}")
+
+        if other_names:
+            result.extend(["", "Names in other languages:"])
+            result.extend(other_names)
+
+        if increasing_moves:
+            result.extend(["", "Moves that increase this stat:"])
+            result.extend(f"  - {move}" for move in sorted(increasing_moves))
+
+        if decreasing_moves:
+            result.extend(["", "Moves that decrease this stat:"])
+            result.extend(f"  - {move}" for move in sorted(decreasing_moves))
+
+        if increasing_natures:
+            result.extend(["", "Natures that increase this stat:"])
+            result.extend(f"  - {nature}" for nature in sorted(increasing_natures))
+
+        if decreasing_natures:
+            result.extend(["", "Natures that decrease this stat:"])
+            result.extend(f"  - {nature}" for nature in sorted(decreasing_natures))
+
+        if stat.characteristics:
+            result.extend(["", "Associated characteristics:"])
+            result.extend(f"  - Characteristic #{char.url.split('/')[-2]}" for char in stat.characteristics)
 
         return "\n".join(result) 

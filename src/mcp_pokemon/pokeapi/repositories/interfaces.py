@@ -3,7 +3,7 @@
 from typing import Protocol
 from abc import ABC, abstractmethod
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat
 
 
 class PokemonRepository(Protocol):
@@ -183,6 +183,23 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the characteristic is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pass
+
+    @abstractmethod
+    async def get_stat(self, identifier: str | int) -> Stat:
+        """Get a Pokemon stat by name or ID.
+
+        Args:
+            identifier: The stat name or ID.
+
+        Returns:
+            The Pokemon stat data.
+
+        Raises:
+            PokeAPINotFoundError: If the stat is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

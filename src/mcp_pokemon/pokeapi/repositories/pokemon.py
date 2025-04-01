@@ -15,6 +15,7 @@ from mcp_pokemon.pokeapi.models import (
     Type,
     Ability,
     Characteristic,
+    Stat,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -230,4 +231,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/characteristic/{id}")
-        return Characteristic.model_validate(data) 
+        return Characteristic.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_stat(self, identifier: str | int) -> Stat:
+        """Get a Pokemon stat by name or ID.
+
+        Args:
+            identifier: The stat name or ID.
+
+        Returns:
+            The Pokemon stat data.
+
+        Raises:
+            PokeAPINotFoundError: If the stat is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/stat/{identifier}")
+        return Stat.model_validate(data) 
