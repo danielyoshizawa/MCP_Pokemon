@@ -9,6 +9,7 @@ from mcp_pokemon.pokeapi.models import (
     PokemonSpecies,
     EvolutionChain,
     PokemonForm,
+    PokemonHabitat,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -116,4 +117,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/pokemon-form/{identifier}")
-        return PokemonForm.model_validate(data) 
+        return PokemonForm.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_pokemon_habitat(self, identifier: str | int) -> PokemonHabitat:
+        """Get a Pokemon habitat by name or ID.
+
+        Args:
+            identifier: The habitat name or ID.
+
+        Returns:
+            The Pokemon habitat data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon habitat is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/pokemon-habitat/{identifier}")
+        return PokemonHabitat.model_validate(data) 

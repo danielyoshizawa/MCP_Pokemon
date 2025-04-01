@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat
 
 
 class PokemonRepository(Protocol):
@@ -85,6 +85,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the Pokemon form is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_pokemon_habitat(self, identifier: str | int) -> PokemonHabitat:
+        """Get a Pokemon habitat by name or ID.
+
+        Args:
+            identifier: The habitat name or ID.
+
+        Returns:
+            The Pokemon habitat data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon habitat is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

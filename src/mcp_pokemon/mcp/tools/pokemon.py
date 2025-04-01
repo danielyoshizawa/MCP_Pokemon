@@ -94,4 +94,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon form.
         """
-        return await service.get_pokemon_form_details(identifier) 
+        return await service.get_pokemon_form_details(identifier)
+
+    @mcp.tool()
+    async def get_habitat(identifier: str) -> str:
+        """Get detailed information about a Pokemon habitat.
+        
+        Args:
+            identifier: Name or ID of the habitat.
+            
+        Returns:
+            A formatted string with details about the Pokemon habitat.
+        """
+        return await service.get_pokemon_habitat_details(identifier) 

@@ -243,3 +243,11 @@ class PokemonForm(BaseModel):
     types: List[PokemonType]
     form_names: List[Name] = Field(alias="form_names")
     names: List[Name]
+
+class PokemonHabitat(BaseModel):
+    """A Pokemon habitat from the PokeAPI."""
+    
+    id: int
+    name: str
+    names: List[Name]
+    pokemon_species: List[NamedAPIResource] = Field(alias="pokemon_species")

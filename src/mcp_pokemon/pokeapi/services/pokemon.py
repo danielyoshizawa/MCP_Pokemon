@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -188,6 +188,35 @@ class PokemonService:
         available_sprites = [k for k, v in form.sprites.items() if v is not None]
         if available_sprites:
             details.append("Available Sprites: " + ", ".join(available_sprites))
+        
+        return "\n".join(details)
+
+    async def get_pokemon_habitat_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon habitat.
+
+        Args:
+            identifier: The habitat name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon habitat.
+        """
+        habitat = await self.repository.get_pokemon_habitat(identifier)
+        
+        details = []
+        # Add habitat name
+        details.append(f"Habitat: {habitat.name.title()}")
+        
+        # Add localized names
+        localized_names = [f"{name.name} ({name.language.name})" for name in habitat.names]
+        if localized_names:
+            details.append("Names in other languages:")
+            details.extend(f"  - {name}" for name in localized_names)
+        
+        # Add Pokemon species that live in this habitat
+        if habitat.pokemon_species:
+            details.append(f"\nPokemon found in this habitat ({len(habitat.pokemon_species)}):")
+            pokemon_list = sorted([species.name.title() for species in habitat.pokemon_species])
+            details.extend(f"  - {pokemon}" for pokemon in pokemon_list)
         
         return "\n".join(details)
 
