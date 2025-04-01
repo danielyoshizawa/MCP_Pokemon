@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies
 
 
 class PokemonRepository(Protocol):
@@ -37,6 +37,22 @@ class PokemonRepository(Protocol):
             The paginated response containing Pokemon resources.
 
         Raises:
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_pokemon_species(self, identifier: str | int) -> PokemonSpecies:
+        """Get a Pokemon species by name or ID.
+
+        Args:
+            identifier: The Pokemon species name or ID.
+
+        Returns:
+            The Pokemon species data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon species is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

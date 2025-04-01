@@ -2,7 +2,7 @@
 
 from mcp_pokemon.pokeapi.cache import CacheProvider, cached
 from mcp_pokemon.pokeapi.client import HTTPClient
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -35,18 +35,6 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/pokemon/{identifier}")
-        # Ensure required fields are present for validation
-        if isinstance(data, dict):
-            data.setdefault("base_experience", 0)
-            data.setdefault("height", 0)
-            data.setdefault("weight", 0)
-            data.setdefault("is_default", True)
-            data.setdefault("order", 0)
-            data.setdefault("sprites", {})
-            data.setdefault("stats", [])
-            data.setdefault("types", [])
-            data.setdefault("abilities", [])
-            data.setdefault("game_indices", [])
         return Pokemon.model_validate(data)
 
     @cached(ttl=86400)  # Cache for 24 hours
@@ -67,4 +55,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get("/pokemon", params={"offset": offset, "limit": limit})
-        return PaginatedResponse[NamedAPIResource].model_validate(data) 
+        return PaginatedResponse[NamedAPIResource].model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_pokemon_species(self, identifier: str | int) -> PokemonSpecies:
+        """Get a Pokemon species by name or ID.
+
+        Args:
+            identifier: The Pokemon species name or ID.
+
+        Returns:
+            The Pokemon species data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon species is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/pokemon-species/{identifier}")
+        return PokemonSpecies.model_validate(data) 

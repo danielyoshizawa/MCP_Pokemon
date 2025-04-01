@@ -27,6 +27,38 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         return str([pokemon["name"] for pokemon in pokemon_list])
 
     @mcp.tool()
+    async def get_pokemon(identifier: str) -> str:
+        """Get detailed information about a specific Pokemon.
+        
+        Args:
+            identifier: Name or ID of the Pokemon.
+            
+        Returns:
+            A detailed description of the Pokemon.
+        """
+        pokemon = await service.get_pokemon(identifier)
+        
+        # Format the Pokemon information
+        types = [t["type"]["name"] for t in pokemon["types"]]
+        abilities = [a["ability"]["name"] for a in pokemon["abilities"]]
+        stats = {s["stat"]["name"]: s["base_stat"] for s in pokemon["stats"]}
+        total_stats = sum(stats.values())
+        
+        result = []
+        result.append(f"Pokemon: {pokemon['name'].title()}")
+        result.append(f"ID: {pokemon['id']}")
+        result.append(f"Types: {', '.join(types)}")
+        result.append(f"Abilities: {', '.join(abilities)}")
+        result.append(f"Height: {pokemon['height']/10}m")
+        result.append(f"Weight: {pokemon['weight']/10}kg")
+        result.append("\nBase Stats:")
+        for stat_name, base_stat in stats.items():
+            result.append(f"- {stat_name}: {base_stat}")
+        result.append(f"\nTotal Base Stats: {total_stats}")
+        
+        return "\n".join(result)
+
+    @mcp.tool()
     async def compare_pokemon(pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.
         

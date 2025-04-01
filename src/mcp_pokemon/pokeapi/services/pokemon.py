@@ -46,36 +46,62 @@ class PokemonService:
             pokemon_list.append(pokemon.model_dump())
         return pokemon_list
 
-    async def compare_pokemon(self, pokemon1: str | int, pokemon2: str | int) -> str:
+    async def compare_pokemon(self, pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.
-
+        
         Args:
             pokemon1: Name or ID of the first Pokemon.
             pokemon2: Name or ID of the second Pokemon.
-
+            
         Returns:
-            A string describing the comparison result.
+            A detailed comparison of the two Pokemon.
         """
         p1 = await self.repository.get_pokemon(pokemon1)
         p2 = await self.repository.get_pokemon(pokemon2)
-
+        
         # Calculate total base stats
         p1_total = sum(stat.base_stat for stat in p1.stats)
         p2_total = sum(stat.base_stat for stat in p2.stats)
 
-        # Get types
+        # Get types and abilities
         p1_types = [t.type.name for t in p1.types]
         p2_types = [t.type.name for t in p2.types]
+        p1_abilities = [a.ability.name for a in p1.abilities]
+        p2_abilities = [a.ability.name for a in p2.abilities]
 
-        return (
-            f"Comparing {p1.name.title()} vs {p2.name.title()}:\n\n"
-            f"{p1.name.title()}:\n"
-            f"- Types: {', '.join(p1_types)}\n"
-            f"- Total base stats: {p1_total}\n\n"
-            f"{p2.name.title()}:\n"
-            f"- Types: {', '.join(p2_types)}\n"
-            f"- Total base stats: {p2_total}\n\n"
-            f"{p1.name.title() if p1_total > p2_total else p2.name.title()} "
-            f"would likely win with {max(p1_total, p2_total)} total base stats vs "
-            f"{min(p1_total, p2_total)}!"
-        ) 
+        # Build comparison text
+        result = []
+        result.append(f"Comparing {p1.name.title()} vs {p2.name.title()}:")
+        
+        result.append(f"\n{p1.name.title()}:")
+        result.append(f"- Types: {', '.join(p1_types)}")
+        result.append(f"- Abilities: {', '.join(p1_abilities)}")
+        result.append(f"- Base Stats:")
+        for stat in p1.stats:
+            result.append(f"  * {stat.stat.name}: {stat.base_stat}")
+        result.append(f"- Total base stats: {p1_total}")
+        result.append(f"- Height: {p1.height/10}m")
+        result.append(f"- Weight: {p1.weight/10}kg")
+        
+        result.append(f"\n{p2.name.title()}:")
+        result.append(f"- Types: {', '.join(p2_types)}")
+        result.append(f"- Abilities: {', '.join(p2_abilities)}")
+        result.append(f"- Base Stats:")
+        for stat in p2.stats:
+            result.append(f"  * {stat.stat.name}: {stat.base_stat}")
+        result.append(f"- Total base stats: {p2_total}")
+        result.append(f"- Height: {p2.height/10}m")
+        result.append(f"- Weight: {p2.weight/10}kg")
+
+        # Determine winner based on stats and provide more detailed analysis
+        result.append("\nBattle Analysis:")
+        if p1_total > p2_total:
+            diff = p1_total - p2_total
+            result.append(f"{p1.name.title()} has an advantage with {diff} more total base stats!")
+        elif p2_total > p1_total:
+            diff = p2_total - p1_total
+            result.append(f"{p2.name.title()} has an advantage with {diff} more total base stats!")
+        else:
+            result.append("Both Pokemon are evenly matched in total base stats!")
+
+        return "\n".join(result) 
