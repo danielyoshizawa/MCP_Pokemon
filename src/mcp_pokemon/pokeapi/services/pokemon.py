@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -149,6 +149,47 @@ class PokemonService:
         chain_url = species.evolution_chain["url"]
         chain_id = int(chain_url.rstrip("/").split("/")[-1])
         return await self.get_evolution_chain(chain_id)
+
+    async def get_pokemon_form_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon form.
+
+        Args:
+            identifier: The form name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon form.
+        """
+        form = await self.repository.get_pokemon_form(identifier)
+        
+        details = []
+        details.append(f"Form: {form.name.title()}")
+        if form.form_name:
+            details.append(f"Form Name: {form.form_name}")
+        
+        # Add type information
+        types = [t.type.name.title() for t in form.types]
+        details.append(f"Types: {' / '.join(types)}")
+        
+        # Add form characteristics
+        characteristics = []
+        if form.is_mega:
+            characteristics.append("Mega Evolution")
+        if form.is_battle_only:
+            characteristics.append("Battle-Only Form")
+        if form.is_default:
+            characteristics.append("Default Form")
+        if characteristics:
+            details.append(f"Characteristics: {', '.join(characteristics)}")
+        
+        # Add version group information
+        details.append(f"Version Group: {form.version_group.name.replace('-', ' ').title()}")
+        
+        # Add sprite information if available
+        available_sprites = [k for k, v in form.sprites.items() if v is not None]
+        if available_sprites:
+            details.append("Available Sprites: " + ", ".join(available_sprites))
+        
+        return "\n".join(details)
 
     async def compare_pokemon(self, pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.

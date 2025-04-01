@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm
 
 
 class PokemonRepository(Protocol):
@@ -69,6 +69,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the evolution chain is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_pokemon_form(self, identifier: str | int) -> PokemonForm:
+        """Get a Pokemon form by name or ID.
+
+        Args:
+            identifier: The form name or ID.
+
+        Returns:
+            The Pokemon form data.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon form is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

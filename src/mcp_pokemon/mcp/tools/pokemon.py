@@ -2,6 +2,7 @@
 
 from mcp.server.fastmcp import FastMCP
 from mcp_pokemon.pokeapi.services import PokemonService
+from typing import List, Dict, Any
 
 
 def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
@@ -59,6 +60,18 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         return "\n".join(result)
 
     @mcp.tool()
+    async def get_evolution_chain(identifier: str) -> str:
+        """Get the evolution chain for a specific Pokemon.
+        
+        Args:
+            identifier: Name or ID of the Pokemon.
+            
+        Returns:
+            A formatted string showing the Pokemon's evolution chain.
+        """
+        return await service.get_pokemon_evolution_chain(identifier)
+
+    @mcp.tool()
     async def compare_pokemon(pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.
         
@@ -69,4 +82,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A detailed comparison of the two Pokemon.
         """
-        return await service.compare_pokemon(pokemon1, pokemon2) 
+        return await service.compare_pokemon(pokemon1, pokemon2)
+
+    @mcp.tool()
+    async def get_form(identifier: str) -> str:
+        """Get detailed information about a specific Pokemon form.
+        
+        Args:
+            identifier: Name or ID of the Pokemon form.
+            
+        Returns:
+            A formatted string with details about the Pokemon form.
+        """
+        return await service.get_pokemon_form_details(identifier) 

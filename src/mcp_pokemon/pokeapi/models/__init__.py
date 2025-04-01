@@ -8,6 +8,7 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     EvolutionChain,
     EvolutionDetail,
     ChainLink,
+    PokemonForm,
 )
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "EvolutionChain",
     "EvolutionDetail",
     "ChainLink",
+    "PokemonForm",
 ] 

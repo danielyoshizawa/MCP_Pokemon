@@ -225,3 +225,21 @@ class EvolutionChain(BaseModel):
     id: int
     baby_trigger_item: Optional[NamedAPIResource] = None
     chain: ChainLink
+
+class PokemonForm(BaseModel):
+    """A Pokemon form from the PokeAPI."""
+    
+    id: int
+    name: str
+    order: int
+    form_order: int = Field(alias="form_order")
+    is_default: bool = Field(alias="is_default")
+    is_battle_only: bool = Field(alias="is_battle_only")
+    is_mega: bool = Field(alias="is_mega")
+    form_name: str = Field(alias="form_name")
+    pokemon: NamedAPIResource
+    sprites: Dict[str, Optional[str]]
+    version_group: NamedAPIResource = Field(alias="version_group")
+    types: List[PokemonType]
+    form_names: List[Name] = Field(alias="form_names")
+    names: List[Name]
