@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -526,5 +526,50 @@ class PokemonService:
             "Pokemon with this ability:",
             *pokemon_columns,
         ])
+
+        return "\n".join(result)
+
+    async def get_characteristic_details(self, id: int) -> str:
+        """Get detailed information about a Pokemon characteristic.
+
+        Args:
+            id: The characteristic ID.
+
+        Returns:
+            A formatted string containing details about the characteristic.
+
+        Raises:
+            PokeAPINotFoundError: If the characteristic is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        characteristic = await self.repository.get_characteristic(id)
+
+        # Get the English description
+        english_description = next(
+            (desc.description for desc in characteristic.descriptions if desc.language.name == "en"),
+            "No English description available"
+        )
+
+        # Format descriptions in other languages
+        other_languages = []
+        for desc in characteristic.descriptions:
+            if desc.language.name != "en":
+                other_languages.append(f"  - {desc.description} ({desc.language.name})")
+
+        # Format the result string
+        result = [
+            f"Characteristic ID: {characteristic.id}",
+            f"Description: {english_description}",
+            f"Highest Stat: {characteristic.highest_stat.name}",
+            f"Gene Modulo: {characteristic.gene_modulo}",
+            f"Possible Values: {', '.join(map(str, characteristic.possible_values))}",
+            "\nDescriptions in other languages:"
+        ]
+
+        if other_languages:
+            result.extend(other_languages)
+        else:
+            result.append("  No translations available")
 
         return "\n".join(result) 

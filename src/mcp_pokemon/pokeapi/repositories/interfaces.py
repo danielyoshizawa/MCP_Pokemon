@@ -1,8 +1,9 @@
 """Repository interfaces for the PokeAPI."""
 
 from typing import Protocol
+from abc import ABC, abstractmethod
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic
 
 
 class PokemonRepository(Protocol):
@@ -168,4 +169,21 @@ class PokemonRepository(Protocol):
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """
-        ... 
+        ...
+
+    @abstractmethod
+    async def get_characteristic(self, id: int) -> Characteristic:
+        """Get a Pokemon characteristic by ID.
+
+        Args:
+            id: The characteristic ID.
+
+        Returns:
+            The Pokemon characteristic data.
+
+        Raises:
+            PokeAPINotFoundError: If the characteristic is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pass 

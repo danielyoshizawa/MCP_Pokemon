@@ -7,6 +7,7 @@ from mcp_pokemon.pokeapi.models.base import (
     GenerationGameIndex,
     Effect,
     VerboseEffect,
+    Description,
 )
 
 class VersionGameIndex(BaseModel):
@@ -356,3 +357,16 @@ class Ability(BaseModel):
     effect_changes: List[AbilityEffectChange]
     flavor_text_entries: List[AbilityFlavorText]
     pokemon: List[AbilityPokemon]
+
+class Characteristic(BaseModel):
+    """A Pokemon characteristic from the PokeAPI.
+    
+    Characteristics indicate which stat contains a Pokémon's highest IV.
+    A characteristic is determined by the remainder of the highest IV divided by 5 (gene_modulo).
+    """
+    
+    id: int
+    gene_modulo: int
+    possible_values: List[int]
+    highest_stat: NamedAPIResource
+    descriptions: List[Description]

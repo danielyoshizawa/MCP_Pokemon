@@ -43,6 +43,7 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     TypePastDamageRelations,
     TypePokemon,
     TypeSprites,
+    Characteristic,
 )
 
 __all__ = [
@@ -86,4 +87,5 @@ __all__ = [
     "AbilityEffectChange",
     "AbilityFlavorText",
     "AbilityPokemon",
+    "Characteristic",
 ] 

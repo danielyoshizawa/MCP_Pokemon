@@ -14,6 +14,7 @@ from mcp_pokemon.pokeapi.models import (
     PokemonShape,
     Type,
     Ability,
+    Characteristic,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -211,4 +212,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/ability/{identifier}")
-        return Ability.model_validate(data) 
+        return Ability.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_characteristic(self, id: int) -> Characteristic:
+        """Get a Pokemon characteristic by ID.
+
+        Args:
+            id: The characteristic ID.
+
+        Returns:
+            The Pokemon characteristic data.
+
+        Raises:
+            PokeAPINotFoundError: If the characteristic is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/characteristic/{id}")
+        return Characteristic.model_validate(data) 
