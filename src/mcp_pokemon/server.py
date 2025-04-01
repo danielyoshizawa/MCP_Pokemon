@@ -50,7 +50,7 @@ async def lifespan(app):
     yield
     
     # Shutdown
-    print("Closing MCP server")
+    print("Closing MCP server. Bye Pokeworld!")
     if client:
         await client.close()
     if cache:
@@ -61,7 +61,12 @@ app.router.lifespan_context = lifespan
 
 if __name__ == "__main__":
     try:
-        uvicorn.run("mcp_pokemon.server:app", host="0.0.0.0", port=8000, reload=True)
+        uvicorn.run(
+            "mcp_pokemon.server:app",
+            host="0.0.0.0",
+            port=8000,
+            reload=True
+        )
     except KeyboardInterrupt:
         print("Keyboard Interrupted")
     except Exception as ex:

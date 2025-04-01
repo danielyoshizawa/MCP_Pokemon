@@ -2,7 +2,7 @@
 
 from typing import Protocol
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain
 
 
 class PokemonRepository(Protocol):
@@ -53,6 +53,22 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the Pokemon species is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        ...
+
+    async def get_evolution_chain(self, chain_id: int) -> EvolutionChain:
+        """Get a Pokemon evolution chain by ID.
+
+        Args:
+            chain_id: The evolution chain ID.
+
+        Returns:
+            The evolution chain data.
+
+        Raises:
+            PokeAPINotFoundError: If the evolution chain is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

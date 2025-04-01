@@ -1,5 +1,5 @@
 """Pokemon models for the PokeAPI."""
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse
 
@@ -176,7 +176,7 @@ class PokemonSpecies(BaseModel):
     color: NamedAPIResource
     shape: Optional[NamedAPIResource] = None
     evolves_from_species: Optional[NamedAPIResource] = None
-    evolution_chain: NamedAPIResource
+    evolution_chain: Dict[str, str] = Field(description="URL to the evolution chain")
     habitat: Optional[NamedAPIResource] = None
     generation: NamedAPIResource
     names: List[Name]
@@ -185,3 +185,43 @@ class PokemonSpecies(BaseModel):
     form_descriptions: List[dict] = Field(alias="form_descriptions")
     genera: List[Genus]
     varieties: List[PokemonSpeciesVariety]
+
+
+class EvolutionDetail(BaseModel):
+    """Details about a Pokemon evolution."""
+    
+    item: Optional[NamedAPIResource] = None
+    trigger: NamedAPIResource
+    gender: Optional[int] = None
+    held_item: Optional[NamedAPIResource] = None
+    known_move: Optional[NamedAPIResource] = None
+    known_move_type: Optional[NamedAPIResource] = None
+    location: Optional[NamedAPIResource] = None
+    min_level: Optional[int] = None
+    min_happiness: Optional[int] = None
+    min_beauty: Optional[int] = None
+    min_affection: Optional[int] = None
+    needs_overworld_rain: bool = False
+    party_species: Optional[NamedAPIResource] = None
+    party_type: Optional[NamedAPIResource] = None
+    relative_physical_stats: Optional[int] = None
+    time_of_day: str = ""
+    trade_species: Optional[NamedAPIResource] = None
+    turn_upside_down: bool = False
+
+
+class ChainLink(BaseModel):
+    """A link in the evolution chain."""
+    
+    is_baby: bool
+    species: NamedAPIResource
+    evolution_details: List[EvolutionDetail] = Field(default_factory=list)
+    evolves_to: List["ChainLink"] = Field(default_factory=list)
+
+
+class EvolutionChain(BaseModel):
+    """A Pokemon evolution chain from the PokeAPI."""
+    
+    id: int
+    baby_trigger_item: Optional[NamedAPIResource] = None
+    chain: ChainLink

@@ -1,7 +1,14 @@
 """Models package for PokeAPI."""
 
 from mcp_pokemon.pokeapi.models.base import NamedAPIResource, PaginatedResponse
-from mcp_pokemon.pokeapi.models.pokemon import Pokemon, PokemonList, PokemonSpecies
+from mcp_pokemon.pokeapi.models.pokemon import (
+    Pokemon,
+    PokemonList,
+    PokemonSpecies,
+    EvolutionChain,
+    EvolutionDetail,
+    ChainLink,
+)
 
 __all__ = [
     "NamedAPIResource",
@@ -9,4 +16,7 @@ __all__ = [
     "Pokemon",
     "PokemonList",
     "PokemonSpecies",
+    "EvolutionChain",
+    "EvolutionDetail",
+    "ChainLink",
 ] 

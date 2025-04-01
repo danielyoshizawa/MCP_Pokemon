@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any
 
-from mcp_pokemon.pokeapi.models import Pokemon
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -45,6 +45,110 @@ class PokemonService:
             pokemon = await self.repository.get_pokemon(resource.name)
             pokemon_list.append(pokemon.model_dump())
         return pokemon_list
+
+    def _format_evolution_details(self, details: EvolutionDetail) -> str:
+        """Format evolution details into a human-readable string.
+
+        Args:
+            details: The evolution details to format.
+
+        Returns:
+            A human-readable string describing the evolution conditions.
+        """
+        conditions = []
+
+        if details.min_level:
+            conditions.append(f"reaching level {details.min_level}")
+        if details.min_happiness:
+            conditions.append(f"happiness of at least {details.min_happiness}")
+        if details.min_affection:
+            conditions.append(f"affection of at least {details.min_affection}")
+        if details.item:
+            conditions.append(f"using {details.item.name}")
+        if details.held_item:
+            conditions.append(f"holding {details.held_item.name}")
+        if details.known_move:
+            conditions.append(f"knowing the move {details.known_move.name}")
+        if details.known_move_type:
+            conditions.append(f"knowing a {details.known_move_type.name}-type move")
+        if details.location:
+            conditions.append(f"at {details.location.name}")
+        if details.needs_overworld_rain:
+            conditions.append("while it's raining")
+        if details.party_species:
+            conditions.append(f"with a {details.party_species.name} in the party")
+        if details.party_type:
+            conditions.append(f"with a {details.party_type.name}-type Pokemon in the party")
+        if details.trade_species:
+            conditions.append(f"by trading with {details.trade_species.name}")
+        if details.time_of_day:
+            conditions.append(f"during {details.time_of_day}")
+        if details.relative_physical_stats is not None:
+            if details.relative_physical_stats > 0:
+                conditions.append("when Attack > Defense")
+            elif details.relative_physical_stats < 0:
+                conditions.append("when Attack < Defense")
+            else:
+                conditions.append("when Attack = Defense")
+        if details.trigger.name == "trade" and not conditions:
+            conditions.append("by trading")
+        if not conditions and details.trigger.name == "level-up":
+            conditions.append("by leveling up")
+
+        return " ".join(conditions)
+
+    def _format_evolution_chain(self, chain: ChainLink, indent: int = 0) -> List[str]:
+        """Format an evolution chain into a list of strings.
+
+        Args:
+            chain: The evolution chain link to format.
+            indent: The current indentation level.
+
+        Returns:
+            A list of strings describing the evolution chain.
+        """
+        result = []
+        prefix = "    " * indent
+        result.append(f"{prefix}{chain.species.name.title()}")
+
+        for evolution in chain.evolves_to:
+            if evolution.evolution_details:
+                conditions = self._format_evolution_details(evolution.evolution_details[0])
+                result.append(f"{prefix}└─> {evolution.species.name.title()} ({conditions})")
+            else:
+                result.append(f"{prefix}└─> {evolution.species.name.title()}")
+            
+            if evolution.evolves_to:
+                result.extend(self._format_evolution_chain(evolution, indent + 1))
+
+        return result
+
+    async def get_evolution_chain(self, chain_id: int) -> str:
+        """Get a formatted evolution chain by ID.
+
+        Args:
+            chain_id: The evolution chain ID.
+
+        Returns:
+            A formatted string showing the evolution chain.
+        """
+        chain = await self.repository.get_evolution_chain(chain_id)
+        lines = self._format_evolution_chain(chain.chain)
+        return "\n".join(lines)
+
+    async def get_pokemon_evolution_chain(self, identifier: str | int) -> str:
+        """Get the evolution chain for a specific Pokemon.
+
+        Args:
+            identifier: The Pokemon name or ID.
+
+        Returns:
+            A formatted string showing the Pokemon's evolution chain.
+        """
+        species = await self.repository.get_pokemon_species(identifier)
+        chain_url = species.evolution_chain["url"]
+        chain_id = int(chain_url.rstrip("/").split("/")[-1])
+        return await self.get_evolution_chain(chain_id)
 
     async def compare_pokemon(self, pokemon1: str, pokemon2: str) -> str:
         """Compare two Pokemon and determine which would win in a battle.

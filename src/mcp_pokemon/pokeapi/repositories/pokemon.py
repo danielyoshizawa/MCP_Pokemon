@@ -2,7 +2,13 @@
 
 from mcp_pokemon.pokeapi.cache import CacheProvider, cached
 from mcp_pokemon.pokeapi.client import HTTPClient
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies
+from mcp_pokemon.pokeapi.models import (
+    NamedAPIResource,
+    PaginatedResponse,
+    Pokemon,
+    PokemonSpecies,
+    EvolutionChain,
+)
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -73,4 +79,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/pokemon-species/{identifier}")
-        return PokemonSpecies.model_validate(data) 
+        return PokemonSpecies.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_evolution_chain(self, chain_id: int) -> EvolutionChain:
+        """Get a Pokemon evolution chain by ID.
+
+        Args:
+            chain_id: The evolution chain ID.
+
+        Returns:
+            The evolution chain data.
+
+        Raises:
+            PokeAPINotFoundError: If the evolution chain is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/evolution-chain/{chain_id}")
+        return EvolutionChain.model_validate(data) 
