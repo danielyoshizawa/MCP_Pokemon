@@ -651,4 +651,47 @@ class PokemonService:
             result.extend(["", "Associated characteristics:"])
             result.extend(f"  - Characteristic #{char.url.split('/')[-2]}" for char in stat.characteristics)
 
+        return "\n".join(result)
+
+    async def get_gender_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon gender.
+
+        Args:
+            identifier: The gender name or ID.
+
+        Returns:
+            A formatted string containing details about the Pokemon gender.
+
+        Raises:
+            PokeAPINotFoundError: If the gender is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        gender = await self.repository.get_gender(identifier)
+
+        result = []
+        result.append(f"Gender: {gender.name.title()} (ID: {gender.id})")
+        result.append("")
+
+        if gender.pokemon_species_details:
+            result.append("Pokemon Species with this gender:")
+            # Sort by rate and name
+            sorted_species = sorted(
+                gender.pokemon_species_details,
+                key=lambda x: (x["rate"], x["pokemon_species"]["name"])
+            )
+            # Group by rate
+            current_rate = None
+            for species in sorted_species:
+                rate = species["rate"]
+                if rate != current_rate:
+                    result.append(f"\nRate {rate}/8:")
+                    current_rate = rate
+                result.append(f"  - {species['pokemon_species']['name'].title()}")
+
+        if gender.required_for_evolution:
+            result.append("\nRequired for evolution:")
+            for species in sorted(gender.required_for_evolution, key=lambda x: x.name):
+                result.append(f"  - {species.name.title()}")
+
         return "\n".join(result) 

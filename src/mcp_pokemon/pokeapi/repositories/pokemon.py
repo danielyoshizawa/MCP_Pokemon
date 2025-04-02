@@ -16,6 +16,7 @@ from mcp_pokemon.pokeapi.models import (
     Ability,
     Characteristic,
     Stat,
+    Gender,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -249,4 +250,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/stat/{identifier}")
-        return Stat.model_validate(data) 
+        return Stat.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_gender(self, identifier: str | int) -> Gender:
+        """Get a Pokemon gender by name or ID.
+
+        Args:
+            identifier: The gender name or ID.
+
+        Returns:
+            The Pokemon gender data.
+
+        Raises:
+            PokeAPINotFoundError: If the gender is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/gender/{identifier}")
+        return Gender.model_validate(data) 

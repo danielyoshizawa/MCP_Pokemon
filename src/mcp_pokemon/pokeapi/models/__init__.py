@@ -47,6 +47,7 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     MoveStatAffectSets,
     NatureStatAffectSets,
     Stat,
+    Gender,
 )
 
 __all__ = [
@@ -94,4 +95,5 @@ __all__ = [
     "MoveStatAffectSets",
     "NatureStatAffectSets",
     "Stat",
+    "Gender",
 ] 

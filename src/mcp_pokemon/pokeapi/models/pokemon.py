@@ -396,3 +396,18 @@ class Stat(BaseModel):
     characteristics: List[APIResource]
     move_damage_class: Optional[NamedAPIResource] = None
     names: List[Name]
+
+class Gender(BaseModel):
+    """Model representing a Pokemon gender."""
+
+    id: int
+    """The identifier for this gender."""
+
+    name: str
+    """The name of this gender."""
+
+    pokemon_species_details: List[Dict[str, Any]]
+    """A list of Pokemon species that can be this gender and how likely it is."""
+
+    required_for_evolution: List[NamedAPIResource]
+    """A list of Pokemon species that require this gender in order to evolve."""
