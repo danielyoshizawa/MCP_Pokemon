@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, GrowthRate
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -693,5 +693,52 @@ class PokemonService:
             result.append("\nRequired for evolution:")
             for species in sorted(gender.required_for_evolution, key=lambda x: x.name):
                 result.append(f"  - {species.name.title()}")
+
+        return "\n".join(result)
+
+    async def get_growth_rate_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon growth rate.
+
+        Args:
+            identifier: The growth rate name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon growth rate.
+
+        Raises:
+            PokeAPINotFoundError: If the growth rate is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        growth_rate = await self.repository.get_growth_rate(identifier)
+
+        result = [
+            f"Growth Rate: {growth_rate.name.title()} (ID: {growth_rate.id})",
+            "",
+            "Formula:",
+            growth_rate.formula,
+            "",
+            "Experience Levels:",
+        ]
+
+        # Add experience levels in groups of 10
+        levels = sorted(growth_rate.levels, key=lambda x: x.level)
+        for i in range(0, len(levels), 10):
+            group = levels[i:i + 10]
+            level_str = " | ".join(f"Level {l.level}: {l.experience:,} XP" for l in group)
+            result.append(level_str)
+
+        result.extend([
+            "",
+            "Pokemon Species with this growth rate:",
+            ""
+        ])
+
+        # Sort and format Pokemon species names
+        species = sorted(growth_rate.pokemon_species, key=lambda x: x.name)
+        for i in range(0, len(species), 5):
+            group = species[i:i + 5]
+            species_str = "  - " + ", ".join(s.name.title() for s in group)
+            result.append(species_str)
 
         return "\n".join(result) 

@@ -411,3 +411,17 @@ class Gender(BaseModel):
 
     required_for_evolution: List[NamedAPIResource]
     """A list of Pokemon species that require this gender in order to evolve."""
+
+class GrowthRateExperienceLevel(BaseModel):
+    """A level and the amount of experience needed to reach it."""
+    level: int
+    experience: int
+
+class GrowthRate(BaseModel):
+    """A growth rate being the speed with which Pokémon gain levels through experience."""
+    id: int
+    name: str
+    formula: str
+    descriptions: list[Description]
+    levels: list[GrowthRateExperienceLevel]
+    pokemon_species: list[NamedAPIResource]

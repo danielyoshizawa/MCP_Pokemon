@@ -48,6 +48,8 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     NatureStatAffectSets,
     Stat,
     Gender,
+    GrowthRate,
+    GrowthRateExperienceLevel,
 )
 
 __all__ = [
@@ -96,4 +98,6 @@ __all__ = [
     "NatureStatAffectSets",
     "Stat",
     "Gender",
+    "GrowthRate",
+    "GrowthRateExperienceLevel",
 ] 

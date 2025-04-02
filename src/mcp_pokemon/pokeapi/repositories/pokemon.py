@@ -17,6 +17,7 @@ from mcp_pokemon.pokeapi.models import (
     Characteristic,
     Stat,
     Gender,
+    GrowthRate,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -268,4 +269,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/gender/{identifier}")
-        return Gender.model_validate(data) 
+        return Gender.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_growth_rate(self, identifier: str | int) -> GrowthRate:
+        """Get a Pokemon growth rate by name or ID.
+
+        Args:
+            identifier: The growth rate name or ID.
+
+        Returns:
+            The Pokemon growth rate data.
+
+        Raises:
+            PokeAPINotFoundError: If the growth rate is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/growth-rate/{identifier}")
+        return GrowthRate.model_validate(data) 
