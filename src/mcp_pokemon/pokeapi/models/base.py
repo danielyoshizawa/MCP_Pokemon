@@ -46,12 +46,6 @@ class VerboseEffect(BaseModel):
     short_effect: str
     language: NamedAPIResource
 
-class VersionEncounterDetail(BaseModel):
-    """A version encounter detail in the PokeAPI."""
-    version: NamedAPIResource
-    max_chance: int
-    encounter_details: List[Dict[str, Any]]
-
 class VersionGameIndex(BaseModel):
     """A version game index in the PokeAPI."""
     game_index: int

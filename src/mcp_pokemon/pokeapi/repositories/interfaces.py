@@ -1,9 +1,9 @@
 """Repository interfaces for the PokeAPI."""
 
-from typing import Protocol
+from typing import Protocol, List
 from abc import ABC, abstractmethod
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate, Nature, EggGroup
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate, Nature, EggGroup, LocationAreaEncounter
 
 
 class PokemonRepository(Protocol):
@@ -268,6 +268,23 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the egg group is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pass
+
+    @abstractmethod
+    async def get_pokemon_encounters(self, identifier: str | int) -> list[LocationAreaEncounter]:
+        """Get a list of location area encounters for a Pokemon.
+
+        Args:
+            identifier: The Pokemon name or ID.
+
+        Returns:
+            A list of location area encounters.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

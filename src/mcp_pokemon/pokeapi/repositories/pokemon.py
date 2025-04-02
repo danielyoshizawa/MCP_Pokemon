@@ -20,6 +20,7 @@ from mcp_pokemon.pokeapi.models import (
     GrowthRate,
     Nature,
     EggGroup,
+    LocationAreaEncounter,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -325,4 +326,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/egg-group/{identifier}")
-        return EggGroup.model_validate(data) 
+        return EggGroup.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_pokemon_encounters(self, identifier: str | int) -> list[LocationAreaEncounter]:
+        """Get a list of location area encounters for a Pokemon.
+
+        Args:
+            identifier: The Pokemon name or ID.
+
+        Returns:
+            A list of location area encounters.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/pokemon/{identifier}/encounters")
+        return [LocationAreaEncounter.model_validate(item) for item in data] 

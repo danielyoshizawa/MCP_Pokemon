@@ -850,4 +850,57 @@ class PokemonService:
             species_str = "  - " + ", ".join(s.name.title() for s in group)
             result.append(species_str)
 
+        return "\n".join(result)
+
+    async def get_pokemon_encounters_details(self, identifier: str | int) -> str:
+        """Get detailed information about where a Pokemon can be encountered.
+
+        Args:
+            identifier: The Pokemon name or ID.
+
+        Returns:
+            A formatted string with encounter details.
+
+        Raises:
+            PokeAPINotFoundError: If the Pokemon is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pokemon = await self.repository.get_pokemon(identifier)
+        encounters = await self.repository.get_pokemon_encounters(identifier)
+
+        if not encounters:
+            return f"{pokemon.name.title()} (ID: {pokemon.id}) cannot be encountered in the wild."
+
+        result = [f"Encounter Locations for {pokemon.name.title()} (ID: {pokemon.id}):"]
+
+        for encounter in encounters:
+            location_name = encounter.location_area.name.replace("-", " ").title()
+            result.append(f"\n{location_name}:")
+
+            for version_detail in encounter.version_details:
+                version_name = version_detail.version.name.replace("-", " ").title()
+                result.append(f"  Version: {version_name}")
+
+                for detail in version_detail.encounter_details:
+                    conditions = []
+                    if detail.condition_values:
+                        conditions = [
+                            cond.name.replace("-", " ").title()
+                            for cond in detail.condition_values
+                        ]
+
+                    method = detail.method.name.replace("-", " ").title()
+                    level_range = (
+                        f"Level {detail.min_level}"
+                        if detail.min_level == detail.max_level
+                        else f"Levels {detail.min_level}-{detail.max_level}"
+                    )
+                    chance = f"{detail.chance}% chance"
+
+                    encounter_info = f"    - {method}: {level_range}, {chance}"
+                    if conditions:
+                        encounter_info += f" (Conditions: {', '.join(conditions)})"
+                    result.append(encounter_info)
+
         return "\n".join(result) 

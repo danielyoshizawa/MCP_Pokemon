@@ -455,3 +455,32 @@ class EggGroup(BaseModel):
     name: str
     names: list[Name]
     pokemon_species: list[NamedAPIResource]
+
+class EncounterConditionValue(BaseModel):
+    """A condition value for a Pokemon encounter."""
+    name: str
+    url: str
+
+class EncounterMethod(BaseModel):
+    """A method for encountering a Pokemon."""
+    name: str
+    url: str
+
+class EncounterDetail(BaseModel):
+    """Details about a Pokemon encounter."""
+    chance: int
+    condition_values: list[EncounterConditionValue]
+    max_level: int
+    method: EncounterMethod
+    min_level: int
+
+class VersionEncounterDetail(BaseModel):
+    """Details about Pokemon encounters in a specific game version."""
+    encounter_details: list[EncounterDetail]
+    max_chance: int
+    version: NamedAPIResource
+
+class LocationAreaEncounter(BaseModel):
+    """Information about where a Pokemon can be encountered."""
+    location_area: NamedAPIResource
+    version_details: list[VersionEncounterDetail]

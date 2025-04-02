@@ -10,7 +10,6 @@ from mcp_pokemon.pokeapi.models.base import (
     NamedAPIResource,
     PaginatedResponse,
     VerboseEffect,
-    VersionEncounterDetail,
     VersionGameIndex,
 )
 from mcp_pokemon.pokeapi.models.pokemon import (
@@ -54,6 +53,16 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     PokeathlonStatChange,
     Nature,
     EggGroup,
+    EncounterConditionValue,
+    EncounterMethod,
+    EncounterDetail,
+    VersionEncounterDetail,
+    LocationAreaEncounter,
+)
+from mcp_pokemon.pokeapi.models.common import (
+    Language,
+    VersionEncounterArea,
+    VersionGroupFlavorText,
 )
 
 __all__ = [
@@ -66,7 +75,6 @@ __all__ = [
     "NamedAPIResource",
     "PaginatedResponse",
     "VerboseEffect",
-    "VersionEncounterDetail",
     "VersionGameIndex",
     "Pokemon",
     "PokemonAbility",
@@ -108,4 +116,12 @@ __all__ = [
     "PokeathlonStatChange",
     "Nature",
     "EggGroup",
+    "Language",
+    "VersionEncounterArea",
+    "VersionGroupFlavorText",
+    "EncounterConditionValue",
+    "EncounterMethod",
+    "EncounterDetail",
+    "VersionEncounterDetail",
+    "LocationAreaEncounter",
 ] 
