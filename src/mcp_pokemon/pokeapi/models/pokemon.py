@@ -425,3 +425,26 @@ class GrowthRate(BaseModel):
     descriptions: list[Description]
     levels: list[GrowthRateExperienceLevel]
     pokemon_species: list[NamedAPIResource]
+
+class MoveBattleStylePreference(BaseModel):
+    """A move battle style preference for a given nature."""
+    low_hp_preference: int
+    high_hp_preference: int
+    move_battle_style: NamedAPIResource
+
+class PokeathlonStatChange(BaseModel):
+    """A Pokeathlon stat change for a given nature."""
+    max_change: int
+    pokeathlon_stat: NamedAPIResource
+
+class Nature(BaseModel):
+    """A nature that affects a Pokemon's stats."""
+    id: int
+    name: str
+    decreased_stat: Optional[NamedAPIResource] = None
+    increased_stat: Optional[NamedAPIResource] = None
+    hates_flavor: Optional[NamedAPIResource] = None
+    likes_flavor: Optional[NamedAPIResource] = None
+    move_battle_style_preferences: list[MoveBattleStylePreference]
+    pokeathlon_stat_changes: list[PokeathlonStatChange]
+    names: list[Name]

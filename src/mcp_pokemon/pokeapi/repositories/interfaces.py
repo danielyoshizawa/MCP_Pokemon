@@ -3,7 +3,7 @@
 from typing import Protocol
 from abc import ABC, abstractmethod
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate, Nature
 
 
 class PokemonRepository(Protocol):
@@ -234,6 +234,23 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the growth rate is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pass
+
+    @abstractmethod
+    async def get_nature(self, identifier: str | int) -> Nature:
+        """Get a Pokemon nature by name or ID.
+
+        Args:
+            identifier: The nature name or ID.
+
+        Returns:
+            The Pokemon nature data.
+
+        Raises:
+            PokeAPINotFoundError: If the nature is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

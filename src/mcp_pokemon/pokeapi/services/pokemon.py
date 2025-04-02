@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, GrowthRate
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, GrowthRate, Nature
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -740,5 +740,73 @@ class PokemonService:
             group = species[i:i + 5]
             species_str = "  - " + ", ".join(s.name.title() for s in group)
             result.append(species_str)
+
+        return "\n".join(result)
+
+    async def get_nature_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon nature.
+
+        Args:
+            identifier: The nature name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon nature.
+
+        Raises:
+            PokeAPINotFoundError: If the nature is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        nature = await self.repository.get_nature(identifier)
+
+        # Get English name
+        english_name = next((name.name for name in nature.names if name.language.name == "en"), nature.name)
+
+        result = [
+            f"Nature: {english_name.title()} (ID: {nature.id})",
+            ""
+        ]
+
+        # Add stat changes
+        if nature.increased_stat or nature.decreased_stat:
+            result.append("Stat Changes:")
+            if nature.increased_stat:
+                result.append(f"  + Increases {nature.increased_stat.name.title()}")
+            if nature.decreased_stat:
+                result.append(f"  - Decreases {nature.decreased_stat.name.title()}")
+            result.append("")
+
+        # Add flavor preferences
+        if nature.likes_flavor or nature.hates_flavor:
+            result.append("Berry Flavor Preferences:")
+            if nature.likes_flavor:
+                result.append(f"  + Likes {nature.likes_flavor.name.title()}")
+            if nature.hates_flavor:
+                result.append(f"  - Dislikes {nature.hates_flavor.name.title()}")
+            result.append("")
+
+        # Add battle style preferences
+        result.append("Battle Style Preferences:")
+        for pref in sorted(nature.move_battle_style_preferences, key=lambda x: x.move_battle_style.name):
+            style = pref.move_battle_style.name.title()
+            result.append(f"  {style}:")
+            result.append(f"    - When HP is high: {pref.high_hp_preference}%")
+            result.append(f"    - When HP is low: {pref.low_hp_preference}%")
+        result.append("")
+
+        # Add Pokeathlon stat changes
+        if nature.pokeathlon_stat_changes:
+            result.append("Pokeathlon Stat Changes:")
+            for change in sorted(nature.pokeathlon_stat_changes, key=lambda x: x.pokeathlon_stat.name):
+                stat = change.pokeathlon_stat.name.title()
+                sign = "+" if change.max_change > 0 else ""
+                result.append(f"  {stat}: {sign}{change.max_change}")
+            result.append("")
+
+        # Add translations
+        result.append("Names in Other Languages:")
+        for name in sorted(nature.names, key=lambda x: x.language.name):
+            if name.language.name != "en":  # Skip English as it's already shown
+                result.append(f"  {name.language.name}: {name.name}")
 
         return "\n".join(result) 

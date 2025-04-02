@@ -50,6 +50,9 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     Gender,
     GrowthRate,
     GrowthRateExperienceLevel,
+    MoveBattleStylePreference,
+    PokeathlonStatChange,
+    Nature,
 )
 
 __all__ = [
@@ -100,4 +103,7 @@ __all__ = [
     "Gender",
     "GrowthRate",
     "GrowthRateExperienceLevel",
+    "MoveBattleStylePreference",
+    "PokeathlonStatChange",
+    "Nature",
 ] 

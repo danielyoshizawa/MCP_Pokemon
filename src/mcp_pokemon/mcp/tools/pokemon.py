@@ -202,4 +202,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon growth rate.
         """
-        return await service.get_growth_rate_details(identifier) 
+        return await service.get_growth_rate_details(identifier)
+
+    @mcp.tool()
+    async def get_nature(identifier: str) -> str:
+        """Get detailed information about a Pokemon nature.
+        
+        Args:
+            identifier: Name or ID of the nature.
+            
+        Returns:
+            A formatted string with details about the Pokemon nature.
+        """
+        return await service.get_nature_details(identifier) 
