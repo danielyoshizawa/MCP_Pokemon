@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any, Optional, Tuple
 
-from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, GrowthRate, Nature
+from mcp_pokemon.pokeapi.models import Pokemon, EvolutionDetail, ChainLink, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, GrowthRate, Nature, EggGroup
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
 
@@ -808,5 +808,46 @@ class PokemonService:
         for name in sorted(nature.names, key=lambda x: x.language.name):
             if name.language.name != "en":  # Skip English as it's already shown
                 result.append(f"  {name.language.name}: {name.name}")
+
+        return "\n".join(result)
+
+    async def get_egg_group_details(self, identifier: str | int) -> str:
+        """Get detailed information about a Pokemon egg group.
+
+        Args:
+            identifier: The egg group name or ID.
+
+        Returns:
+            A formatted string with details about the Pokemon egg group.
+
+        Raises:
+            PokeAPINotFoundError: If the egg group is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        egg_group = await self.repository.get_egg_group(identifier)
+
+        # Get English name
+        english_name = next((name.name for name in egg_group.names if name.language.name == "en"), egg_group.name)
+
+        result = [
+            f"Egg Group: {english_name.title()} (ID: {egg_group.id})",
+            ""
+        ]
+
+        # Add translations
+        result.append("Names in Other Languages:")
+        for name in sorted(egg_group.names, key=lambda x: x.language.name):
+            if name.language.name != "en":  # Skip English as it's already shown
+                result.append(f"  {name.language.name}: {name.name}")
+        result.append("")
+
+        # Add Pokemon species
+        result.append("Pokemon Species in this Egg Group:")
+        species = sorted(egg_group.pokemon_species, key=lambda x: x.name)
+        for i in range(0, len(species), 5):
+            group = species[i:i + 5]
+            species_str = "  - " + ", ".join(s.name.title() for s in group)
+            result.append(species_str)
 
         return "\n".join(result) 

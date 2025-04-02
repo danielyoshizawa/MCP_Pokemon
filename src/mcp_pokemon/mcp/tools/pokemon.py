@@ -214,4 +214,16 @@ def register_pokemon_tools(mcp: FastMCP, service: PokemonService) -> None:
         Returns:
             A formatted string with details about the Pokemon nature.
         """
-        return await service.get_nature_details(identifier) 
+        return await service.get_nature_details(identifier)
+
+    @mcp.tool()
+    async def get_egg_group(identifier: str) -> str:
+        """Get detailed information about a Pokemon egg group.
+        
+        Args:
+            identifier: Name or ID of the egg group.
+            
+        Returns:
+            A formatted string with details about the Pokemon egg group.
+        """
+        return await service.get_egg_group_details(identifier) 

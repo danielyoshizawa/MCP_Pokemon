@@ -3,7 +3,7 @@
 from typing import Protocol
 from abc import ABC, abstractmethod
 
-from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate, Nature
+from mcp_pokemon.pokeapi.models import NamedAPIResource, PaginatedResponse, Pokemon, PokemonSpecies, EvolutionChain, PokemonForm, PokemonHabitat, PokemonColor, PokemonShape, Type, Ability, Characteristic, Stat, Gender, GrowthRate, Nature, EggGroup
 
 
 class PokemonRepository(Protocol):
@@ -251,6 +251,23 @@ class PokemonRepository(Protocol):
 
         Raises:
             PokeAPINotFoundError: If the nature is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        pass
+
+    @abstractmethod
+    async def get_egg_group(self, identifier: str | int) -> EggGroup:
+        """Get a Pokemon egg group by name or ID.
+
+        Args:
+            identifier: The egg group name or ID.
+
+        Returns:
+            The Pokemon egg group data.
+
+        Raises:
+            PokeAPINotFoundError: If the egg group is not found.
             PokeAPIConnectionError: If there is a connection error.
             PokeAPIResponseError: If the response contains an error.
         """

@@ -448,3 +448,10 @@ class Nature(BaseModel):
     move_battle_style_preferences: list[MoveBattleStylePreference]
     pokeathlon_stat_changes: list[PokeathlonStatChange]
     names: list[Name]
+
+class EggGroup(BaseModel):
+    """A group of Pokémon that share the same egg group."""
+    id: int
+    name: str
+    names: list[Name]
+    pokemon_species: list[NamedAPIResource]

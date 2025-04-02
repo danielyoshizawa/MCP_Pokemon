@@ -19,6 +19,7 @@ from mcp_pokemon.pokeapi.models import (
     Gender,
     GrowthRate,
     Nature,
+    EggGroup,
 )
 from mcp_pokemon.pokeapi.repositories.interfaces import PokemonRepository
 
@@ -306,4 +307,22 @@ class PokeAPIRepository(PokemonRepository):
             PokeAPIResponseError: If the response contains an error.
         """
         data = await self.client._get(f"/nature/{identifier}")
-        return Nature.model_validate(data) 
+        return Nature.model_validate(data)
+
+    @cached(ttl=86400)  # Cache for 24 hours
+    async def get_egg_group(self, identifier: str | int) -> EggGroup:
+        """Get a Pokemon egg group by name or ID.
+
+        Args:
+            identifier: The egg group name or ID.
+
+        Returns:
+            The Pokemon egg group data.
+
+        Raises:
+            PokeAPINotFoundError: If the egg group is not found.
+            PokeAPIConnectionError: If there is a connection error.
+            PokeAPIResponseError: If the response contains an error.
+        """
+        data = await self.client._get(f"/egg-group/{identifier}")
+        return EggGroup.model_validate(data) 

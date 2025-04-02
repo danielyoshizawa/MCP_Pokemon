@@ -53,6 +53,7 @@ from mcp_pokemon.pokeapi.models.pokemon import (
     MoveBattleStylePreference,
     PokeathlonStatChange,
     Nature,
+    EggGroup,
 )
 
 __all__ = [
@@ -106,4 +107,5 @@ __all__ = [
     "MoveBattleStylePreference",
     "PokeathlonStatChange",
     "Nature",
+    "EggGroup",
 ] 
