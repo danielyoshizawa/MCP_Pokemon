@@ -9,13 +9,34 @@ from mcp_pokemon.pokeapi.cache.base import CacheProvider
 class RedisCache(CacheProvider):
     """Redis implementation of the cache provider."""
 
-    def __init__(self, redis_url: str) -> None:
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 6379,
+        db: int = 0,
+        password: Optional[str] = None,
+        username: Optional[str] = None,
+        ssl: bool = False,
+        redis_url: Optional[str] = None
+    ) -> None:
         """Initialize the Redis cache.
         
         Args:
-            redis_url: The URL to connect to Redis.
+            host: Redis server host.
+            port: Redis server port.
+            db: Redis database number.
+            password: Redis password.
+            username: Redis username.
+            ssl: Whether to use SSL.
+            redis_url: Optional Redis URL (overrides other parameters if provided).
         """
         self.redis_url = redis_url
+        self.host = host
+        self.port = port
+        self.db = db
+        self.password = password
+        self.username = username
+        self.ssl = ssl
         self._client: Optional[redis.Redis] = None
 
     @property
@@ -35,11 +56,23 @@ class RedisCache(CacheProvider):
     async def connect(self) -> None:
         """Connect to the Redis server."""
         if self._client is None:
-            self._client = redis.from_url(
-                self.redis_url,
-                encoding="utf-8",
-                decode_responses=True
-            )
+            if self.redis_url:
+                self._client = redis.from_url(
+                    self.redis_url,
+                    encoding="utf-8",
+                    decode_responses=True
+                )
+            else:
+                self._client = redis.Redis(
+                    host=self.host,
+                    port=self.port,
+                    db=self.db,
+                    password=self.password,
+                    username=self.username,
+                    ssl=self.ssl,
+                    encoding="utf-8",
+                    decode_responses=True
+                )
             # Test connection
             await self._client.ping()
 
