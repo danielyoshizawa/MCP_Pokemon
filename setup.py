@@ -8,7 +8,6 @@ setup(
     install_requires=[
         "mcp>=1.6.0",
         "uvicorn[standard]>=0.24.0",
-        "fastapi>=0.104.1",
         "httpx>=0.25.1",
         "python-dotenv>=1.0.0",
     ],
